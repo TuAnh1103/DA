@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>viuni</title>
+</head>
+<body>
+<tbody>
+<tr th:each="user: ${users}">
+    ID: <td th:text="${user.id}" />
+    Họ tên: <td th:text="${user.lastName} " />
+    <td th:text="${user.firstName}" />
+    Ngày sinh: <td th:text="${user.dob}" />
+    Ngày tạo: <td th:text="${user.createdDate}" />
+    <br>
+</tr>
+</tbody>
+</body>
+</html>
