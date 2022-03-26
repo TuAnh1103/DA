@@ -12,7 +12,6 @@
     <groupId>com.viuniteam</groupId>
     <artifactId>socialviuni</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <packaging>war</packaging>
     <name>socialviuni</name>
     <description>socialviuni</description>
     <properties>
