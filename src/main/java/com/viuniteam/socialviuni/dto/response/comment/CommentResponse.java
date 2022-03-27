@@ -17,6 +17,7 @@ public class CommentResponse{
     @JsonProperty("author")
     private UserAuthorResponse userAuthorResponse;
 
+    @JsonProperty("image")
     private ImageResponse imageResponse;
 
     @JsonProperty("created_date")

@@ -1,6 +1,7 @@
 package com.viuniteam.socialviuni.dto.response.user;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.viuniteam.socialviuni.dto.response.address.AddressResponse;
 import com.viuniteam.socialviuni.dto.response.image.ImageResponse;
 import lombok.Data;
 
@@ -41,4 +42,10 @@ public class UserInfoResponse {
 
     @JsonProperty("cover_image")
     private ImageResponse cover;
+
+    @JsonProperty("hometown")
+    private AddressResponse homeTown;
+
+    @JsonProperty("current_city")
+    private AddressResponse currentCity;
 }
