@@ -7,14 +7,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpUtils;
 import java.util.List;
 
-@RestController
+@Controller
 public class HomeController {
     @Autowired
     private RequestService requestService;
@@ -29,12 +28,17 @@ public class HomeController {
         return "index";
     }
     @GetMapping("/home")
+    @ResponseBody
     public List<UserInfoResponse> index(HttpServletRequest request){
 //        System.out.println(requestService.getClientIp(request));
         PageRequest pageRequest = PageRequest.of(0,100);
         Page<UserInfoResponse> userInfoResponsePage = userService.findAll(pageRequest);
         List<UserInfoResponse> userInfoResponseList = userInfoResponsePage.toList();
         return userInfoResponseList;
+    }
+    @RequestMapping(value = "/",method = RequestMethod.GET)
+    public String top1(){
+        return "top1";
     }
 
 }

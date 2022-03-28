@@ -69,7 +69,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 // disable cors
                 .cors().and()
                 // dont authenticate this particular request
-                .authorizeRequests().antMatchers("/login", "/register","/recovery","/home").permitAll().
+                .authorizeRequests().antMatchers("/login", "/register","/recovery","/home","/").permitAll().
                 antMatchers("/admin/*").hasAuthority("ROLE_ADMIN"). // kiem tra role admin phan quyen
                 // all other requests need to be authenticated
                 anyRequest().authenticated().and().

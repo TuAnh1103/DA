@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VIUNI</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+</head>
+<body>
+<style>
+
+    img{
+        max-width: 200px;
+        max-height: 150px;
+        border-radius: 20px;
+    }
+    ul li{
+        display: inline-block;
+    }
+    li{
+        margin-left: 100px;
+    }
+    h1{
+        font-size: 150px;
+    }
+    h2{
+        font-size: 120px;
+    }
+</style>
+<!-- <input type="text" name="username" id="username">
+<input type="text" name="password" id="password">
+<button id="button">Login</button> -->
+<center><h1 id="wait">Đợi bố 1 chút <img src="https://sohanews.sohacdn.com/zoom/320_200/160588918557773824/2022/3/9/photo1646796369456-16467963696431175927904.gif"alt="">...</h1></center>
+
+<div class="container">
+</div>
+<!-- <script src="app.js"></script> -->
+<script>
+
+    function getData(){
+        setTimeout(() => {
+            setInterval(() => {
+                var a= document.getElementById("wait").innerText.split(" ");
+                for(var i = a.length - 1; i > 0; i--) {
+                    var j = Math.floor(Math.random() * (i + 1));
+                    var tmp = a[i];
+                    a[i] = a[j];
+                    a[j] = tmp;
+                }
+                a = a.join(" ");
+                document.getElementById("wait").innerText=a;
+            }, 10);
+        }, 3000);
+        fetch('/home',{
+            method: "GET",
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        })
+            // Handle success
+            .then(response => response.json())  // convert to json
+            .then(json =>{
+                let html = '<center><h2 id="top1">Mạng xã hội viuni số 1 vũ trụ</h2></center><center><ul>';
+
+                json.forEach(user => {
+                    let htmlSegment = `<li><div class="user">
+            <h4>${user['last_name']} ${user['first_name']}</h4>
+            <div>Ngày sinh: ${user.dob}</div>
+            <div>Địa chỉ: ${user['hometown']['name']}</div>
+            <div>Avatar: <img src="${user['avatar_image']['link_image']}" alt=""></div>
+            <div>Ảnh bìa: <img src="${user['cover_image']['link_image']}" alt=""></div>
+            </div><li>`;
+                    html += htmlSegment;
+                });
+                html+="</ul></center>";
+                document.getElementById("wait").style.display="none";
+                let container = document.querySelector('.container');
+                container.innerHTML = html;
+            })    //print data to console
+            .catch(err => console.log('Request Failed', err)); // Catch errors
+    }
+
+
+    getData();
+
+
+</script>
+</body>
+</html>
