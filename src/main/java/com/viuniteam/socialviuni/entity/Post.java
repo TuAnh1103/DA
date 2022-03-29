@@ -26,7 +26,7 @@ public class Post extends BaseEntity{
     private Integer privicy; /* 1-cong khai 2-ban be 3- chi minh toi*/
 
 
-    @OneToMany(mappedBy = "post",cascade = CascadeType.ALL) // cascadetype.all la xoa post thi all cmt cx bi xoa nhe
+    @OneToMany(mappedBy = "post",cascade = CascadeType.REMOVE) // cascadetype.all la xoa post thi all cmt cx bi xoa nhe
     private List<Comment> comments=new ArrayList<>();
 
     @ManyToMany
@@ -34,10 +34,10 @@ public class Post extends BaseEntity{
             inverseJoinColumns = @JoinColumn(name = "image_id",nullable = false))
     private List<Image> images = new ArrayList<>();
 
-    @OneToMany(mappedBy = "post",cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "post",cascade = CascadeType.REMOVE) //cascade = CascadeType.ALL
     private List<Like> likes = new ArrayList<>();
 
-    @OneToMany(mappedBy = "post")
+    @OneToMany(mappedBy = "post",cascade = CascadeType.REMOVE)
     private List<Share> shares = new ArrayList<>();
 
 }

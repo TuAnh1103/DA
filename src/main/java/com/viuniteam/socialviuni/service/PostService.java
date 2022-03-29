@@ -12,6 +12,7 @@ public interface PostService {
     ResponseEntity<?> update(Long id,PostSaveRequest postSaveRequest);
     ResponseEntity<?> delete(Long id);
     List<PostResponse> listPost(Long id);
+    PostResponse findOneById(Long id);
     void autoCreatePost(String content, List<Image> images);
     boolean myPost(Long id);
 }

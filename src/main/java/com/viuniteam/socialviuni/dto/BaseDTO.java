@@ -2,11 +2,10 @@ package com.viuniteam.socialviuni.dto;
 
 import lombok.Data;
 
-import javax.persistence.MappedSuperclass;
-import java.time.LocalDate;
+import java.util.Date;
 
 @Data
 public class BaseDTO {
     private Long id;
-    private LocalDate createdDate;
+    private Date createdDate;
 }

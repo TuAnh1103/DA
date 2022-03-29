@@ -1,11 +1,12 @@
 package com.viuniteam.socialviuni.controller.api;
 
+import com.viuniteam.socialviuni.dto.request.share.ShareSaveRequest;
 import com.viuniteam.socialviuni.service.ShareService;
 import lombok.AllArgsConstructor;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import javax.validation.Valid;
 
 @RestController
 @AllArgsConstructor
@@ -14,7 +15,7 @@ public class ShareController {
     private final ShareService shareService;
 
     @PostMapping("/{postId}")
-    public void sharePost(@PathVariable("postId") Long postId){
-        shareService.share(postId);
+    public ResponseEntity<?> sharePost(@Valid @RequestBody ShareSaveRequest shareSaveRequest, @PathVariable("postId") Long postId){
+        return shareService.share(shareSaveRequest,postId);
     }
 }

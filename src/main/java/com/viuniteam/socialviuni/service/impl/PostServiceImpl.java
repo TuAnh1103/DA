@@ -106,6 +106,15 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
+    public PostResponse findOneById(Long id) {
+        Post post = postRepository.findOneById(id);
+        PostResponse postResponse = postResponseMapper.from(post);
+        User author = post.getAuthor();
+        postResponse.setAuthorResponse(userAuthorResponseUtils.convert(author));
+        return postResponse;
+    }
+
+    @Override
     public void autoCreatePost(String content, List<Image> images) {
         Post post = Post.builder()
                 .author(userService.findOneById(profile.getId()))
