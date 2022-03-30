@@ -40,6 +40,7 @@ public class LikeServiceImpl implements LikeService {
             }
             likeRepository.deleteByUserAndPost(user,post);
             return ResponseEntity.ok(new JsonException(200,"Đã hủy like"));
+
         }
         return new ResponseEntity<>(new JsonException(404,"Bài viết không tồn tại"), HttpStatus.NOT_FOUND);
     }

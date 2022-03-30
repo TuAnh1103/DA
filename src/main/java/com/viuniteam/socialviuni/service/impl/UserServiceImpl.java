@@ -293,6 +293,11 @@ public class UserServiceImpl implements UserService {
         return new ResponseEntity(new JsonException(400,"Cập nhật thông tin không thành công"),HttpStatus.BAD_REQUEST);*/
     }
 
+    @Override
+    public boolean isAdmin(Profile profile) {
+        return profile.getRoles().contains("ROLE_ADMIN");
+    }
+
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {

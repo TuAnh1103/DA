@@ -6,6 +6,6 @@ import org.springframework.http.ResponseEntity;
 
 public interface ShareService {
     ResponseEntity<?> share(ShareSaveRequest shareSaveRequest, Long postId);
-    void removeShare(Long postId);
+    ResponseEntity<?> removeShare(Long shareId);
     Long countSharePost(Long postId);
 }

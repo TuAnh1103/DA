@@ -95,7 +95,7 @@ public class CommentServiceImpl implements CommentService {
                 if(comment!=null){
                     for(Comment cmt : post.getComments()){
                         if(cmt.getId().equals(comment.getId())){
-                            if(cmt.getUser().getId().equals(profile.getId()))
+                            if(cmt.getUser().getId().equals(profile.getId()) || userService.isAdmin(profile))
                                 commentRepository.deleteById(commentId);
                             break;
                         }

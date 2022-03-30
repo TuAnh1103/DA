@@ -18,4 +18,12 @@ public class ShareController {
     public ResponseEntity<?> sharePost(@Valid @RequestBody ShareSaveRequest shareSaveRequest, @PathVariable("postId") Long postId){
         return shareService.share(shareSaveRequest,postId);
     }
+    @DeleteMapping("/{postId}")
+    public ResponseEntity<?> removeSharePost(@PathVariable("postId") Long shareId){
+        return shareService.removeShare(shareId);
+    }
+    @GetMapping("/count/{postId}")
+    public Long countShareByPost(@PathVariable("postId") Long postId){
+        return shareService.countSharePost(postId);
+    }
 }

@@ -1,5 +1,6 @@
 package com.viuniteam.socialviuni.service;
 
+import com.viuniteam.socialviuni.dto.Profile;
 import com.viuniteam.socialviuni.dto.request.user.UserRecoveryPasswordRequest;
 import com.viuniteam.socialviuni.dto.request.user.UserSaveRequest;
 import com.viuniteam.socialviuni.dto.request.user.UserUpdateInfoRequest;
@@ -30,4 +31,6 @@ public interface UserService extends UserDetailsService {
     List<User> findByCurrentCity(Address address);
 
     ResponseEntity<?> updateInfo(UserUpdateInfoRequest userUpdateInfoRequest);
+
+    boolean isAdmin(Profile profile);
 }
