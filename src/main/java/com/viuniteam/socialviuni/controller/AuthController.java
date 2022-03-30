@@ -1,12 +1,14 @@
 package com.viuniteam.socialviuni.controller;
 
 import com.viuniteam.socialviuni.dto.Profile;
+import com.viuniteam.socialviuni.dto.request.browser.BrowserSaveRequest;
 import com.viuniteam.socialviuni.dto.request.user.UserRecoveryPasswordRequest;
 import com.viuniteam.socialviuni.dto.request.user.UserSaveRequest;
 import com.viuniteam.socialviuni.exception.JsonException;
 import com.viuniteam.socialviuni.security.JwtTokenUtil;
 import com.viuniteam.socialviuni.security.jwt.JwtRequest;
 import com.viuniteam.socialviuni.security.jwt.JwtResponse;
+import com.viuniteam.socialviuni.service.BrowserService;
 import com.viuniteam.socialviuni.service.MailService;
 import com.viuniteam.socialviuni.service.UserService;
 import lombok.AllArgsConstructor;
@@ -21,6 +23,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
 @RestController
@@ -29,7 +32,7 @@ public class AuthController {
     private final UserService userService;
     private final AuthenticationManager authenticationManager;
     private final JwtTokenUtil jwtTokenUtil;
-    private final Profile profile;
+
     @PostMapping("/register")
     public ResponseEntity<?> register(@Valid @RequestBody UserSaveRequest userSaveRequest){
         return userService.register(userSaveRequest);
