@@ -62,6 +62,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         return super.authenticationManagerBean();
     }
 
+
+    private static final String[] listUrlPermitAll= new String[]{"/login", "/register","/recovery","/home","/"};
+
     @Override
     protected void configure(HttpSecurity httpSecurity) throws Exception {
         // We don't need CSRF for this example
@@ -69,7 +72,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 // disable cors
                 .cors().and()
                 // dont authenticate this particular request
-                .authorizeRequests().antMatchers("/login", "/register","/recovery","/redirect/*","/home","/").permitAll().
+                .authorizeRequests().antMatchers(listUrlPermitAll).permitAll().
                 antMatchers("/admin/*").hasAuthority("ROLE_ADMIN"). // kiem tra role admin phan quyen
                 // all other requests need to be authenticated
                 anyRequest().authenticated().and().
