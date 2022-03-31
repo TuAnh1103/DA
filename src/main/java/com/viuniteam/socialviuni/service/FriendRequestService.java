@@ -1,16 +1,19 @@
 package com.viuniteam.socialviuni.service;
 
+import com.viuniteam.socialviuni.dto.response.friendrequest.FriendRequestResponse;
 import com.viuniteam.socialviuni.entity.FriendRequest;
 import org.springframework.http.ResponseEntity;
+
+import java.util.List;
 
 public interface FriendRequestService {
     void save(FriendRequest friendRequest);
 
-    ResponseEntity<?> addFriendRequest( Long idTarget);
+    void addFriendRequest(Long idTarget);
 
-    ResponseEntity<?> removeFriendRequest(Long idTarget);
+    void removeFriendRequest(Long idTarget);
 
     boolean isFriendRequest(Long idSource,Long idTarget);
 
-    ResponseEntity<?> getAll();
+    List<FriendRequestResponse> getAll();
 }

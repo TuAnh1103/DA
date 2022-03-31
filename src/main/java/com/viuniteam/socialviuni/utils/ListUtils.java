@@ -13,7 +13,7 @@ public final class ListUtils {
     public static <T> T getLast(List<T> list){
         return list != null && !list.isEmpty() ? list.get(list.size()-1) : null;
     }
-    public static <E> List<E> onetoList(E e){
+    public static <E> List<E> oneToList(E e){
         return e != null ? Collections.singletonList(e) : null;
     }
 }

@@ -10,7 +10,9 @@ import com.viuniteam.socialviuni.entity.Image;
 import com.viuniteam.socialviuni.entity.Role;
 import com.viuniteam.socialviuni.entity.User;
 import com.viuniteam.socialviuni.enumtype.SendCodeType;
+import com.viuniteam.socialviuni.exception.BadRequestException;
 import com.viuniteam.socialviuni.exception.JsonException;
+import com.viuniteam.socialviuni.exception.OKException;
 import com.viuniteam.socialviuni.exception.ObjectNotFoundException;
 import com.viuniteam.socialviuni.mapper.request.user.UserRequestMapper;
 import com.viuniteam.socialviuni.mapper.response.image.ImageReponseMapper;
@@ -70,7 +72,7 @@ public class UserServiceImpl implements UserService {
     private ImageReponseMapper imageReponseMapper;
 
     @Override
-    public ResponseEntity<?> save(UserSaveRequest userSaveRequest) {
+    public void save(UserSaveRequest userSaveRequest) {
         User user = userRequestMapper.to(userSaveRequest);
         user.setActive(true);
         List<Long> roleIds = Arrays.asList(roleRepository.findOneByName("ROLE_USER").getId());
@@ -80,47 +82,47 @@ public class UserServiceImpl implements UserService {
         Optional<User> checkEmail = userRepository.findByEmail(user.getEmail());
 
         if(!checkUsername.isEmpty())
-            return new ResponseEntity<>(new JsonException(400,"Username đã tồn tại"), HttpStatus.BAD_REQUEST);
+            throw new BadRequestException("Username đã tồn tại");
 
         if(!checkEmail.isEmpty())
-            return new ResponseEntity<>(new JsonException(400,"Email đã tồn tại"), HttpStatus.BAD_REQUEST);
+            throw new BadRequestException("Email đã tồn tại");
 
         if(LocalDateTime.now().getYear() - user.getDob().getYear() < 12){
-            return new ResponseEntity<>(new JsonException(400,"Độ tuổi không đủ điều kiện tham gia"), HttpStatus.BAD_REQUEST);
+            throw new BadRequestException("Độ tuổi không đủ điều kiện tham gia");
         }
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         userRepository.save(user);
-        return new ResponseEntity<>(new JsonException(200,"Đăng ký tài khoản thành công"), HttpStatus.CREATED);
+        throw new OKException("Đăng ký tài khoản thành công");
     }
 
     @Override
-    public ResponseEntity<?> register(UserSaveRequest userSaveRequest) {
+    public void register(UserSaveRequest userSaveRequest) {
         User user = userRequestMapper.to(userSaveRequest);
         Optional<User> checkUsername = userRepository.findByUsername(user.getUsername());
         Optional<User> checkEmail = userRepository.findByEmail(user.getEmail());
 
         if(!checkUsername.isEmpty())
-            return new ResponseEntity<>(new JsonException(400,"Username đã tồn tại"), HttpStatus.BAD_REQUEST);
+            throw new BadRequestException("Username đã tồn tại");
 
         if(!checkEmail.isEmpty())
-            return new ResponseEntity<>(new JsonException(400,"Email đã tồn tại"), HttpStatus.BAD_REQUEST);
+            throw new BadRequestException("Email đã tồn tại");
 
         if(LocalDateTime.now().getYear() - user.getDob().getYear() < 12){
-            return new ResponseEntity<>(new JsonException(400,"Độ tuổi không đủ điều kiện tham gia"), HttpStatus.BAD_REQUEST);
+            throw new BadRequestException("Độ tuổi không đủ điều kiện tham gia");
         }
 
         if(userSaveRequest.getCode() != null){ // gửi kèm code
             if(mailService.hasCode(userSaveRequest.getEmail(),userSaveRequest.getCode())){
                 mailService.deleteByEmail(userSaveRequest.getEmail());
-                return save(userSaveRequest);
+                save(userSaveRequest);
             }
-            return new ResponseEntity<>(new JsonException(400,"Mã xác nhận không chính xác"), HttpStatus.BAD_REQUEST);
+            throw new BadRequestException("Mã xác nhận không chính xác");
         }
-        return mailService.sendCode(userSaveRequest.getEmail(), userSaveRequest.getUsername(), SendCodeType.REGISTER);
+        mailService.sendCode(userSaveRequest.getEmail(), userSaveRequest.getUsername(), SendCodeType.REGISTER);
     }
 
     @Override
-    public ResponseEntity<?> recoveryPassword(UserRecoveryPasswordRequest userRecoveryPasswordRequest) {
+    public void recoveryPassword(UserRecoveryPasswordRequest userRecoveryPasswordRequest) {
         Optional<User> users = userRepository.findByUsername(userRecoveryPasswordRequest.getUsername());
         users.orElseThrow(()-> new ObjectNotFoundException("User not found"));
         User user = users.get();
@@ -133,20 +135,20 @@ public class UserServiceImpl implements UserService {
                     user.setPassword(passwordEncoder.encode(password));
                     update(user);
                     mailService.deleteByEmail(email);
-                    return new ResponseEntity<>(new JsonException(200,"Khôi phục mật khẩu thành công"), HttpStatus.CREATED);
+                    throw new OKException("Khôi phục mật khẩu thành công");
                 }
-                return new ResponseEntity<>(new JsonException(200,"Mã xác nhận chính xác"), HttpStatus.ACCEPTED);
+                throw new OKException("Mã xác nhận chính xác");
             }
             else
-                return new ResponseEntity<>(new JsonException(400,"Mã xác nhận không chính xác"), HttpStatus.BAD_REQUEST);
+                throw new BadRequestException("Mã xác nhận không chính xác");
         }
-        return mailService.sendCode(email, userRecoveryPasswordRequest.getUsername(), SendCodeType.RECOVERY);
+        mailService.sendCode(email, userRecoveryPasswordRequest.getUsername(), SendCodeType.RECOVERY);
     }
 
     @Override
     public UserInfoResponse findById(Long id) {
         Optional<User> users= userRepository.findById(id);
-        users.orElseThrow(()-> new ObjectNotFoundException("User not found"));
+        users.orElseThrow(()-> new ObjectNotFoundException("Tài khoản không tồn tại"));
         User user = users.get();
         List<Image> avatarImages = user.getAvatarImage();
         List<Image> coverImages = user.getCoverImage();
@@ -209,7 +211,7 @@ public class UserServiceImpl implements UserService {
 
 //    update  thong tin ca nhan user
     @Override
-    public ResponseEntity<?> updateInfo(UserUpdateInfoRequest userUpdateInfoRequest) {
+    public void updateInfo(UserUpdateInfoRequest userUpdateInfoRequest) {
         User user = findOneById(profile.getId());
         String lastName = userUpdateInfoRequest.getLastName();
         String firstName = userUpdateInfoRequest.getFirstName();
@@ -276,21 +278,7 @@ public class UserServiceImpl implements UserService {
         }
         update(user);
 
-        return ResponseEntity.ok(new JsonException(200, "Cập nhật thông tin thành công"));
-
-        /*Address homeTown = addressRepository.findOneById(userUpdateInfoRequest.getIdHomeTown());
-        Address currentCity = addressRepository.findOneById(userUpdateInfoRequest.getIdCurrentCity());
-        if(homeTown!=null && currentCity!=null){
-            user.setLastName(userUpdateInfoRequest.getLastName());
-            user.setFirstName(userUpdateInfoRequest.getFirstName());
-            user.setGender(userUpdateInfoRequest.isGender());
-            user.setDob(LocalDate.parse(userUpdateInfoRequest.getDob()));
-            user.setHomeTown(homeTown);
-            user.setCurrentCity(currentCity);
-            update(user);
-            return ResponseEntity.ok(new JsonException(200, "Cập nhật thông tin thành công"));
-        }
-        return new ResponseEntity(new JsonException(400,"Cập nhật thông tin không thành công"),HttpStatus.BAD_REQUEST);*/
+        throw new OKException("Cập nhật thông tin thành công");
     }
 
     @Override
@@ -318,7 +306,5 @@ public class UserServiceImpl implements UserService {
                 .map(role -> new SimpleGrantedAuthority(role.getName()))
                 .collect(Collectors.toList());
     }
-
-
 
 }

@@ -6,7 +6,10 @@ import com.viuniteam.socialviuni.dto.response.friendrequest.FriendRequestRespons
 import com.viuniteam.socialviuni.entity.Friend;
 import com.viuniteam.socialviuni.entity.FriendRequest;
 import com.viuniteam.socialviuni.entity.User;
+import com.viuniteam.socialviuni.exception.BadRequestException;
 import com.viuniteam.socialviuni.exception.JsonException;
+import com.viuniteam.socialviuni.exception.OKException;
+import com.viuniteam.socialviuni.exception.ObjectNotFoundException;
 import com.viuniteam.socialviuni.mapper.response.friend.FriendResponseMapper;
 import com.viuniteam.socialviuni.mapper.response.friendrequest.FriendRequestResponseMapper;
 import com.viuniteam.socialviuni.mapper.response.user.UserInfoResponseMapper;
@@ -38,15 +41,15 @@ public class FriendRequestServiceImpl implements FriendRequestService {
     }
 
     @Override
-    public ResponseEntity<?> addFriendRequest(Long idTarget) {
+    public void addFriendRequest(Long idTarget) {
         Long idSource = profile.getId();
         if(friendService.isFriend(idSource,idTarget))
-            return new ResponseEntity<>(new JsonException(400, "Đã kết bạn rồi"), HttpStatus.BAD_REQUEST);
+            throw new BadRequestException("Đã kết bạn rồi");
         else {
             if (this.isFriendRequest(idSource,idTarget))
-                return new ResponseEntity<>(new JsonException(400, "Đã gửi lời mời kết bạn rồi"), HttpStatus.BAD_REQUEST);
+                throw new BadRequestException("Đã gửi lời mời kết bạn rồi");
             if (friendService.itIsMe(profile.getId(),idTarget))
-                return new ResponseEntity<>(new JsonException(400, "Không thể gửi lời mời kết bạn với chính mình"), HttpStatus.BAD_REQUEST);
+                throw new BadRequestException("Không thể gửi lời mời kết bạn với chính mình");
             else {
                 User userSource = userService.findOneById(idSource);
                 User userTarget = userService.findOneById(idTarget);
@@ -62,7 +65,7 @@ public class FriendRequestServiceImpl implements FriendRequestService {
                         }
                     }
                     friendService.addFriend(idSource,idTarget);
-                    return new ResponseEntity<>(new JsonException(200, "Chấp nhận lời mời kết bạn thành công"), HttpStatus.CREATED);
+                    throw new OKException("Chấp nhận lời mời kết bạn thành công");
                 }
                 else {
                     List<FriendRequest> friendRequestTargetList = userTarget.getFriendRequests();
@@ -73,34 +76,19 @@ public class FriendRequestServiceImpl implements FriendRequestService {
                     friendRequestTargetList.add(friendTarget);
                     userTarget.setFriendRequests(friendRequestTargetList);
                     userService.update(userTarget);
-                    return new ResponseEntity<>(new JsonException(200, "Đã gửi lời mời kết bạn thành công"), HttpStatus.CREATED);
+                    throw new OKException("Đã gửi lời mời kết bạn thành công");
                 }
             }
         }
     }
 
     @Override
-    public ResponseEntity<?> removeFriendRequest(Long idTarget) {
+    public void removeFriendRequest(Long idTarget) {
         Long idSource = profile.getId();
         if(friendService.isFriend(idSource,idTarget))
-            return new ResponseEntity<>(new JsonException(400, "Đã kết bạn rồi"), HttpStatus.BAD_REQUEST);
+            throw new BadRequestException("Đã kết bạn rồi");
         else {
             if (this.isFriendRequest(idSource,idTarget) || this.isFriendRequest(idTarget,idSource)){//kiem tra xem 1 trong 2 nguoi co gui loi moi ket ban voi nhau khong
-
-                /*User userSource = userService.findOneById(idSource);
-                User userTarget = userService.findOneById(idTarget);
-                List<FriendRequest> friendRequestTargetList = userTarget.getFriendRequests();
-
-                Long idFriendSource=0L;
-                for(FriendRequest friendRequest : friendRequestTargetList){
-                    if(friendRequest.getUser().getId() == userSource.getId()) {
-                        idFriendSource = friendRequest.getId();
-                        break;
-                    }
-                }
-                // remove friend request source from list target
-                friendRequestRepository.deleteUserFriendRequests(idFriendSource);
-                friendRequestRepository.deleteFriendRequestById(idFriendSource);*/
 
                 User userSource = userService.findOneById(idSource);
                 User userTarget = userService.findOneById(idTarget);
@@ -125,10 +113,10 @@ public class FriendRequestServiceImpl implements FriendRequestService {
                         break;
                     }
                 }
-                return new ResponseEntity<>(new JsonException(200, "Đã hủy lời mời kết bạn"), HttpStatus.CREATED);
+                throw new OKException("Đã hủy lời mời kết bạn thành công");
             }
             else
-                return new ResponseEntity<>(new JsonException(400, "Chưa gửi lời mời kết bạn"), HttpStatus.BAD_REQUEST);
+                throw new BadRequestException("Chưa gửi lời mời kết bạn");
         }
     }
 
@@ -147,10 +135,10 @@ public class FriendRequestServiceImpl implements FriendRequestService {
     }
 
     @Override
-    public ResponseEntity<?> getAll() {
+    public List<FriendRequestResponse> getAll() {
         User user = userService.findOneById(profile.getId());
         if(user == null)
-            return new ResponseEntity<>(new JsonException(404,"Người dùng không tồn tại"),HttpStatus.NOT_FOUND);
+            throw new ObjectNotFoundException("Người dùng không tồn tại");
 
         List<FriendRequest> friendRequestList = user.getFriendRequests();
         List<FriendRequestResponse> friendRequestResponseList = new ArrayList<>();
@@ -159,6 +147,6 @@ public class FriendRequestServiceImpl implements FriendRequestService {
             friendRequestResponse.setUserInfoResponse(userInfoResponseMapper.from(friend.getUser()));
             friendRequestResponseList.add(friendRequestResponse);
         });
-        return new ResponseEntity<>(friendRequestResponseList,HttpStatus.ACCEPTED);
+        return friendRequestResponseList;
     }
 }

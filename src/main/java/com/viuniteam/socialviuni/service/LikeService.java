@@ -5,8 +5,7 @@ import com.viuniteam.socialviuni.entity.User;
 import org.springframework.http.ResponseEntity;
 
 public interface LikeService {
-    ResponseEntity<?> like(Long postId);
-    void removeLike(Long postId);
+    void like(Long postId);
     boolean checkLiked(Post post, User user);
     Long countLikePost(Long postId);
 }

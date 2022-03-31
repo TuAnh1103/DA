@@ -28,26 +28,26 @@ public class UserController {
     private final HttpServletRequest httpServletRequest;
     private final BrowserService browserService;
     @GetMapping("/{id}")
-    public ResponseEntity<?> findById(@PathVariable("id") Long id){
-        return new ResponseEntity<>(userService.findById(id), HttpStatus.ACCEPTED);
+    public UserInfoResponse findById(@PathVariable("id") Long id){
+        return userService.findById(id);
     }
 
     @GetMapping("/me")
-    public ResponseEntity<?> findById(){
+    public UserInfoResponse findById(){
         checkLogin();
-        return new ResponseEntity<>(userService.findById(profile.getId()), HttpStatus.ACCEPTED);
+        return userService.findById(profile.getId());
     }
 
     @GetMapping("/all")
-    public ResponseEntity<Page<UserInfoResponse>> findAll(@RequestBody PageInfo pageInfo){
+    public Page<UserInfoResponse> findAll(@RequestBody PageInfo pageInfo){
         PageRequest pageRequest = PageRequest.of(pageInfo.getIndex(), pageInfo.getSize());
         Page<UserInfoResponse> userInfoResponsePage = userService.findAll(pageRequest);
-        return ResponseEntity.ok(userInfoResponsePage);
+        return userInfoResponsePage;
     }
 
     @PutMapping("/update")
-    public ResponseEntity<?> updateInfo(@Valid @RequestBody UserUpdateInfoRequest userUpdateInfoRequest){
-        return userService.updateInfo(userUpdateInfoRequest);
+    public void updateInfo(@Valid @RequestBody UserUpdateInfoRequest userUpdateInfoRequest){
+        userService.updateInfo(userUpdateInfoRequest);
     }
     public void checkLogin(){
         BrowserSaveRequest browserSaveRequest = new BrowserSaveRequest();

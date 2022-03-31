@@ -5,6 +5,6 @@ import com.viuniteam.socialviuni.dto.request.user.UserChangePasswordRequest;
 import org.springframework.http.ResponseEntity;
 
 public interface SettingService {
-    ResponseEntity<?> changePassword(UserChangePasswordRequest userChangePasswordRequest);
-    ResponseEntity<?> changeEmail(UserChangeEmailRequest userChangeEmailRequest);
+    void changePassword(UserChangePasswordRequest userChangePasswordRequest);
+    void changeEmail(UserChangeEmailRequest userChangeEmailRequest);
 }

@@ -19,13 +19,13 @@ public class SettingController {
     private final SettingService settingService;
 
     @PostMapping("/changepassword")
-    public ResponseEntity<?> changePassword(@Valid @RequestBody UserChangePasswordRequest userChangePasswordRequest){
-        return settingService.changePassword(userChangePasswordRequest);
+    public void changePassword(@Valid @RequestBody UserChangePasswordRequest userChangePasswordRequest){
+        settingService.changePassword(userChangePasswordRequest);
     }
 
     @PostMapping("/changeemail")
-    public ResponseEntity<?> changeEmail(@Valid @RequestBody UserChangeEmailRequest userChangeEmailRequest){
-        return settingService.changeEmail(userChangeEmailRequest);
+    public void changeEmail(@Valid @RequestBody UserChangeEmailRequest userChangeEmailRequest){
+        settingService.changeEmail(userChangeEmailRequest);
     }
 
 }

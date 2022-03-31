@@ -3,17 +3,12 @@ package com.viuniteam.socialviuni.service.impl;
 import com.viuniteam.socialviuni.dto.Profile;
 import com.viuniteam.socialviuni.dto.request.post.PostSaveRequest;
 import com.viuniteam.socialviuni.dto.response.post.PostResponse;
-import com.viuniteam.socialviuni.dto.response.user.UserAuthorResponse;
-import com.viuniteam.socialviuni.dto.utils.ResponseUtils;
 import com.viuniteam.socialviuni.dto.utils.post.PostResponseUtils;
-import com.viuniteam.socialviuni.dto.utils.user.UserAuthorResponseUtils;
 import com.viuniteam.socialviuni.entity.Image;
 import com.viuniteam.socialviuni.entity.Post;
 import com.viuniteam.socialviuni.entity.User;
-import com.viuniteam.socialviuni.exception.JsonException;
+import com.viuniteam.socialviuni.exception.*;
 import com.viuniteam.socialviuni.mapper.request.post.PostRequestMapper;
-import com.viuniteam.socialviuni.mapper.response.post.PostResponseMapper;
-import com.viuniteam.socialviuni.mapper.response.user.UserAuthorResponseMapper;
 import com.viuniteam.socialviuni.repository.PostRepository;
 import com.viuniteam.socialviuni.service.FriendService;
 import com.viuniteam.socialviuni.service.ImageService;
@@ -38,22 +33,21 @@ public class PostServiceImpl implements PostService {
     private final ImageService imageService;
     private final PostResponseUtils postResponseUtils;
     @Override
-    public ResponseEntity<?> save(PostSaveRequest postSaveRequest) {
+    public PostResponse save(PostSaveRequest postSaveRequest) {
         Post post = postRequestMapper.to(postSaveRequest);
         post.setAuthor(userService.findOneById(profile.getId()));
 
         List<Image> images = listImageFromRequest(postSaveRequest);
         if(images!=null)
             post.setImages(images);
-
         return convertToPostResponse(post);
     }
 
     @Override
-    public ResponseEntity<?> update(Long id, PostSaveRequest postSaveRequest) {
+    public PostResponse update(Long id, PostSaveRequest postSaveRequest) {
         Post oldPost = postRepository.findOneById(id);
         if(oldPost == null)
-            return new ResponseEntity<>(new JsonException(400,"Bài viết không tồn tại"), HttpStatus.NOT_FOUND);
+            throw new ObjectNotFoundException("Bài viết không tồn tại");
         if(this.myPost(id)){
             Post newPost = postRequestMapper.to(postSaveRequest);
             newPost.setId(id);
@@ -64,18 +58,18 @@ public class PostServiceImpl implements PostService {
                 newPost.setImages(images);
             return convertToPostResponse(newPost);
         }
-        return new ResponseEntity<>(new JsonException(400,"Không có quyền sửa bài viết"), HttpStatus.BAD_REQUEST);
+        throw new BadRequestException("Không có quyền sửa bài viết");
     }
 
     @Override
-    public ResponseEntity<?> delete(Long id) {
+    public void delete(Long id) {
         if(postRepository.findOneById(id) == null)
-            return new ResponseEntity<>(new JsonException(404,"Bài viết không tồn tại"), HttpStatus.NOT_FOUND);
+            throw new ObjectNotFoundException("Bài viết không tồn tại");
         if(this.myPost(id) || userService.isAdmin(profile)){
             postRepository.deleteById(id);
-            return new ResponseEntity<>(new JsonException(200,"Xóa bài viết thành công"), HttpStatus.ACCEPTED);
+            throw new OKException("Xóa bài viết thành công");
         }
-        return new ResponseEntity<>(new JsonException(400,"Không có quyền xóa bài viết"), HttpStatus.BAD_REQUEST);
+        throw new BadRequestException("Không có quyền xóa bài viết");
     }
 
 
@@ -102,7 +96,6 @@ public class PostServiceImpl implements PostService {
         });
         return postResponseList;
     }
-
     @Override
     public PostResponse findOneById(Long id) {
         Post post = postRepository.findOneById(id);
@@ -118,7 +111,6 @@ public class PostServiceImpl implements PostService {
                 .privicy(1)
                 .images(images)
                 .build();
-
         postRepository.save(post);
     }
 
@@ -143,8 +135,8 @@ public class PostServiceImpl implements PostService {
         return null;
     }
 
-    public ResponseEntity<?> convertToPostResponse(Post post){
+    public PostResponse convertToPostResponse(Post post){
         Post postSuccess = postRepository.save(post);
-        return ResponseEntity.ok(postResponseUtils.convert(postSuccess));
+        return postResponseUtils.convert(postSuccess);
     }
 }

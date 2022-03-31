@@ -2,7 +2,9 @@ package com.viuniteam.socialviuni.service.impl;
 
 import com.viuniteam.socialviuni.entity.Mail;
 import com.viuniteam.socialviuni.enumtype.SendCodeType;
+import com.viuniteam.socialviuni.exception.BadRequestException;
 import com.viuniteam.socialviuni.exception.JsonException;
+import com.viuniteam.socialviuni.exception.OKException;
 import com.viuniteam.socialviuni.repository.MailRepository;
 import com.viuniteam.socialviuni.service.MailService;
 import lombok.AllArgsConstructor;
@@ -34,7 +36,7 @@ public class MailServiceImpl implements MailService {
 
 
     @Override
-    public ResponseEntity<?> sendCode(String email, String username, SendCodeType sendCodeType) {
+    public void sendCode(String email, String username, SendCodeType sendCodeType) {
         String title = "Xác nhận %s Social Viuni";
         String content = "Xin chào "+username+",\n" +
                 "Mã bảo mật của bạn là: %s \n"+
@@ -60,28 +62,21 @@ public class MailServiceImpl implements MailService {
         if(mail != null){
             long time = mail.getCreatedDate().getTime();
             if((new Date().getTime() - time)/1000 < minuteLimit*60)
-                return new ResponseEntity<>(new JsonException(400,"Không thể tạo mã mới trong khi mã cũ chưa hết hạn"), HttpStatus.BAD_REQUEST);
+                throw new BadRequestException("Không thể tạo mã mới trong khi mã cũ chưa hết hạn");
             else {
                 deleteByEmail(email);
-                return saveCode(email,title,content,code);
+                saveCode(email,title,content,code);
             }
         }
         else
-            return saveCode(email,title,content,code);
+            saveCode(email,title,content,code);
     }
 
 
-    public ResponseEntity<?> saveCode(String email,String title,String content,String code){
-        try{
-            System.out.println("vao day ne con lol");
-            sendSimpleMessage(email,title, content);
-            mailRepository.save(Mail.builder().email(email).code(code).build());
-            return new ResponseEntity<>(new JsonException(200,"Đã gửi mã xác nhận đến email: "+email), HttpStatus.CREATED);
-        }
-        catch (Exception e){
-            System.out.println("loi ne");
-            return new ResponseEntity<>(new JsonException(400,"Gửi mã thất bại"), HttpStatus.BAD_REQUEST);
-        }
+    public void saveCode(String email,String title,String content,String code){
+        sendSimpleMessage(email,title, content);
+        mailRepository.save(Mail.builder().email(email).code(code).build());
+        throw new OKException("Đã gửi mã xác nhận đến email: "+email);
     }
 
     @Override
@@ -109,11 +104,16 @@ public class MailServiceImpl implements MailService {
     }
 
     public void sendSimpleMessage(String to, String subject, String text) {
-        SimpleMailMessage message = new SimpleMailMessage();
-        message.setFrom("social.viuni@gmail.com");
-        message.setTo(to);
-        message.setSubject(subject);
-        message.setText(text);
-        emailSender.send(message);
+        try {
+            SimpleMailMessage message = new SimpleMailMessage();
+            message.setFrom("social.viuni@gmail.com");
+            message.setTo(to);
+            message.setSubject(subject);
+            message.setText(text);
+            emailSender.send(message);
+        }
+        catch (Exception ex){
+            throw new BadRequestException("Gửi mã thất bại");
+        }
     }
 }

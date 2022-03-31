@@ -37,7 +37,8 @@ public class HomeController {
         return userInfoResponseList;
     }
     @RequestMapping(value = "/",method = RequestMethod.GET)
-    public String top1(){
+    public String top1(HttpServletRequest request){
+        request.setAttribute("userAgent","Trình duyệt của mày là: " + request.getHeader("User-Agent")+"-IP: "+ request.getHeader("X-FORWARDED-FOR"));;
         return "top1";
     }
 

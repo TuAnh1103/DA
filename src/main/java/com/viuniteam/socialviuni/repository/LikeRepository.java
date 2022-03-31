@@ -11,4 +11,5 @@ import javax.transaction.Transactional;
 public interface LikeRepository extends JpaRepository<Like,Long> {
     void deleteByUserAndPost(User user, Post post);
     Long countByPost(Post post);
+    Like findOneByPostAndUser(Post post, User user);
 }

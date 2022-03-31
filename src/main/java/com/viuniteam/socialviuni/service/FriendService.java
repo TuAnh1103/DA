@@ -9,11 +9,11 @@ import java.util.List;
 public interface FriendService {
     void save(Friend friend);
 
-    ResponseEntity<?> addFriend(Long idSource, Long idTarget);
+    void addFriend(Long idSource, Long idTarget);
 
-    ResponseEntity<?> removeFriend(Long idSource, Long idTarget);
+    void removeFriend(Long idSource, Long idTarget);
 
-    ResponseEntity<?> getAll(Long id);
+    List<FriendResponse> getAll(Long id);
 
     boolean isFriend(Long idSource, Long idTarget);
 

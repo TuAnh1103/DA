@@ -7,7 +7,10 @@ import com.viuniteam.socialviuni.entity.Follower;
 import com.viuniteam.socialviuni.entity.Following;
 import com.viuniteam.socialviuni.entity.Friend;
 import com.viuniteam.socialviuni.entity.User;
+import com.viuniteam.socialviuni.exception.BadRequestException;
 import com.viuniteam.socialviuni.exception.JsonException;
+import com.viuniteam.socialviuni.exception.OKException;
+import com.viuniteam.socialviuni.exception.ObjectNotFoundException;
 import com.viuniteam.socialviuni.mapper.response.follow.FollowerResponseMapper;
 import com.viuniteam.socialviuni.mapper.response.follow.FollowingResponseMapper;
 import com.viuniteam.socialviuni.mapper.response.user.UserInfoResponseMapper;
@@ -36,12 +39,12 @@ public class FollowServiceImpl implements FollowService {
     private final FollowerResponseMapper followerResponseMapper;
     private final FollowingResponseMapper followingResponseMapper;
     @Override
-    public ResponseEntity<?> addFollow(Long idTarget) {
+    public void addFollow(Long idTarget) {
         Long idSource = profile.getId();
         if(friendService.itIsMe(profile.getId(),idTarget))
-            return new ResponseEntity<>(new JsonException(400,"Không thể follow chính mình"), HttpStatus.BAD_REQUEST);
+            throw new BadRequestException("Không thể follow chính mình");
         if(this.isFollowing(idSource,idTarget))
-            return new ResponseEntity<>(new JsonException(400,"Đã follow rồi"), HttpStatus.BAD_REQUEST);
+            throw new BadRequestException("Đã follow rồi");
 
         User userSource = userService.findOneById(idSource);
         User userTarget = userService.findOneById(idTarget);
@@ -64,17 +67,17 @@ public class FollowServiceImpl implements FollowService {
         userService.update(userSource);
         userService.update(userTarget);
 
-        return new ResponseEntity<>(new JsonException(200,"Follow thành công"),HttpStatus.CREATED);
+        throw new OKException("Follow thành công");
 
     }
 
     @Override
-    public ResponseEntity<?> removeFollow(Long idTarget) {
+    public void removeFollow(Long idTarget) {
         Long idSource = profile.getId();
         if(friendService.itIsMe(profile.getId(),idTarget))
-            return new ResponseEntity<>(new JsonException(400,"Không thể hủy follow chính mình"), HttpStatus.BAD_REQUEST);
+            throw new BadRequestException("Không thể hủy follow chính mình");
         if(!this.isFollowing(idSource,idTarget))
-            return new ResponseEntity<>(new JsonException(400,"Chưa follow"), HttpStatus.BAD_REQUEST);
+            throw new BadRequestException("Chưa follow");
         User userSource = userService.findOneById(idSource);
         User userTarget = userService.findOneById(idTarget);
 
@@ -100,14 +103,14 @@ public class FollowServiceImpl implements FollowService {
                 break;
             }
         }
-        return new ResponseEntity<>(new JsonException(200,"Hủy follow thành công"),HttpStatus.CREATED);
+        throw new OKException("Hủy follow thành công");
     }
 
     @Override
-    public ResponseEntity<?> getAllFollower(Long id) {
+    public List<FollowResponse> getAllFollower(Long id) {
         User user = userService.findOneById(id);
         if(user == null)
-            return new ResponseEntity<>(new JsonException(404,"Người dùng không tồn tại"),HttpStatus.NOT_FOUND);
+            throw new ObjectNotFoundException("Tài khoản không tồn tại");
 
         List<Follower> followerList = user.getFollowers();
         List<FollowResponse> followResponseList = new ArrayList<>();
@@ -116,15 +119,14 @@ public class FollowServiceImpl implements FollowService {
             followResponse.setUserInfoResponse(userInfoResponseMapper.from(follower.getUser()));
             followResponseList.add(followResponse);
         });
-        return new ResponseEntity<>(followResponseList,HttpStatus.ACCEPTED);
+        return followResponseList;
     }
 
     @Override
-    public ResponseEntity<?> getAllFollowing(Long id) {
+    public List<FollowResponse> getAllFollowing(Long id) {
         User user = userService.findOneById(id);
         if(user == null)
-            return new ResponseEntity<>(new JsonException(404,"Người dùng không tồn tại"),HttpStatus.NOT_FOUND);
-
+            throw new ObjectNotFoundException("Tài khoản không tồn tại");
         List<Following> followingList = user.getFollowings();
         List<FollowResponse> followResponseList = new ArrayList<>();
         followingList.forEach(following -> {
@@ -132,7 +134,7 @@ public class FollowServiceImpl implements FollowService {
             followResponse.setUserInfoResponse(userInfoResponseMapper.from(following.getUser()));
             followResponseList.add(followResponse);
         });
-        return new ResponseEntity<>(followResponseList,HttpStatus.ACCEPTED);
+        return followResponseList;
     }
 
 
@@ -140,6 +142,8 @@ public class FollowServiceImpl implements FollowService {
     public boolean isFollower(Long idSource, Long idTarget) {
         User userSource = userService.findOneById(idSource);
         User userTarget = userService.findOneById(idTarget);
+        if(userTarget==null)
+            throw new ObjectNotFoundException("Tài khoản không tồn tại");
         List<Follower> followerSourceList = userSource.getFollowers();
         for(Follower follower : followerSourceList)
             if(userTarget.getId() == follower.getUser().getId())
@@ -151,6 +155,8 @@ public class FollowServiceImpl implements FollowService {
     public boolean isFollowing(Long idSource, Long idTarget) {
         User userSource = userService.findOneById(idSource);
         User userTarget = userService.findOneById(idTarget);
+        if(userTarget==null)
+            throw new ObjectNotFoundException("Tài khoản không tồn tại");
         List<Following> followingSourceList = userSource.getFollowings();
         for(Following following : followingSourceList)
             if(userTarget.getId() == following.getUser().getId())

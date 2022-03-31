@@ -8,9 +8,9 @@ import org.springframework.http.ResponseEntity;
 import java.util.List;
 
 public interface PostService {
-    ResponseEntity<?> save(PostSaveRequest postSaveRequest);
-    ResponseEntity<?> update(Long id,PostSaveRequest postSaveRequest);
-    ResponseEntity<?> delete(Long id);
+    PostResponse save(PostSaveRequest postSaveRequest);
+    PostResponse update(Long id,PostSaveRequest postSaveRequest);
+    void delete(Long id);
     List<PostResponse> listPost(Long id);
     PostResponse findOneById(Long id);
     void autoCreatePost(String content, List<Image> images);

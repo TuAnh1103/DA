@@ -1,9 +1,12 @@
 package com.viuniteam.socialviuni.controller.api;
 
+import com.viuniteam.socialviuni.dto.response.friendrequest.FriendRequestResponse;
 import com.viuniteam.socialviuni.service.FriendRequestService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @AllArgsConstructor
@@ -12,17 +15,17 @@ public class FriendRequestController {
     private final FriendRequestService friendRequestService;
 
     @PostMapping("/add/{id}")
-    public ResponseEntity<?> addFriendRequest(@PathVariable("id") Long idTarget){
-        return friendRequestService.addFriendRequest(idTarget);
+    public void addFriendRequest(@PathVariable("id") Long idTarget){
+        friendRequestService.addFriendRequest(idTarget);
     }
 
     @PostMapping("/remove/{id}")
-    public ResponseEntity<?> removeFriendRequest(@PathVariable("id") Long idTarget){
-        return friendRequestService.removeFriendRequest(idTarget);
+    public void removeFriendRequest(@PathVariable("id") Long idTarget){
+        friendRequestService.removeFriendRequest(idTarget);
     }
 
     @GetMapping("/getall")
-    public ResponseEntity<?> getAllFriendRequest(){
+    public List<FriendRequestResponse> getAllFriendRequest(){
         return friendRequestService.getAll();
     }
 }

@@ -1,10 +1,13 @@
 package com.viuniteam.socialviuni.controller.api;
 
 import com.viuniteam.socialviuni.dto.Profile;
+import com.viuniteam.socialviuni.dto.response.follow.FollowResponse;
 import com.viuniteam.socialviuni.service.FollowService;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @AllArgsConstructor
@@ -14,32 +17,32 @@ public class FollowController {
     private final Profile profile;
 
     @PostMapping("/add/{id}")
-    public ResponseEntity<?> addFollow(@PathVariable("id") Long id){
-        return followService.addFollow(id);
+    public void addFollow(@PathVariable("id") Long id){
+         followService.addFollow(id);
     }
 
     @DeleteMapping("/remove/{id}")
-    public ResponseEntity<?> removeFollow(@PathVariable("id") Long id){
-        return followService.removeFollow(id);
+    public void removeFollow(@PathVariable("id") Long id){
+        followService.removeFollow(id);
     }
 
     @GetMapping("/follower/{id}")
-    public ResponseEntity<?> getAllFollower(@PathVariable("id") Long id){
+    public List<FollowResponse> getAllFollower(@PathVariable("id") Long id){
         return followService.getAllFollower(id);
     }
 
     @GetMapping("/follower/me")
-    public ResponseEntity<?> getAllFollower(){
+    public List<FollowResponse> getAllFollower(){
         return followService.getAllFollower(profile.getId());
     }
 
     @GetMapping("/following/{id}")
-    public ResponseEntity<?> getAllFollowing(@PathVariable("id") Long id){
+    public List<FollowResponse> getAllFollowing(@PathVariable("id") Long id){
         return followService.getAllFollowing(id);
     }
 
     @GetMapping("/following/me")
-    public ResponseEntity<?> getAllFollowing(){
+    public List<FollowResponse> getAllFollowing(){
         return followService.getAllFollowing(profile.getId());
     }
 

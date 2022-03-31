@@ -16,9 +16,9 @@ import java.util.List;
 import java.util.Optional;
 
 public interface UserService extends UserDetailsService {
-    ResponseEntity<?> save(UserSaveRequest userSaveRequest);
-    ResponseEntity<?> register(UserSaveRequest userSaveRequest);
-    ResponseEntity<?> recoveryPassword(UserRecoveryPasswordRequest userRecoveryPasswordRequest);
+    void save(UserSaveRequest userSaveRequest);
+    void register(UserSaveRequest userSaveRequest);
+    void recoveryPassword(UserRecoveryPasswordRequest userRecoveryPasswordRequest);
     UserInfoResponse findById(Long id);
     Page<UserInfoResponse> findAll(Pageable pageable);
     User findOneById(Long id);
@@ -30,7 +30,7 @@ public interface UserService extends UserDetailsService {
 
     List<User> findByCurrentCity(Address address);
 
-    ResponseEntity<?> updateInfo(UserUpdateInfoRequest userUpdateInfoRequest);
+    void updateInfo(UserUpdateInfoRequest userUpdateInfoRequest);
 
     boolean isAdmin(Profile profile);
 }

@@ -8,7 +8,9 @@ import com.viuniteam.socialviuni.dto.utils.user.UserAuthorResponseUtils;
 import com.viuniteam.socialviuni.entity.Comment;
 import com.viuniteam.socialviuni.entity.Post;
 import com.viuniteam.socialviuni.entity.User;
-import com.viuniteam.socialviuni.exception.JsonException;
+import com.viuniteam.socialviuni.exception.BadRequestException;
+import com.viuniteam.socialviuni.exception.OKException;
+import com.viuniteam.socialviuni.exception.ObjectNotFoundException;
 import com.viuniteam.socialviuni.mapper.request.comment.CommentRequestMapper;
 import com.viuniteam.socialviuni.mapper.request.comment.CommentUpdateRequestMapper;
 import com.viuniteam.socialviuni.mapper.response.comment.CommentResponseMapper;
@@ -20,8 +22,6 @@ import com.viuniteam.socialviuni.service.ImageService;
 import com.viuniteam.socialviuni.service.UserService;
 import com.viuniteam.socialviuni.utils.ListUtils;
 import lombok.AllArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -41,32 +41,29 @@ public class CommentServiceImpl implements CommentService {
     private final UserService userService;
     private final Profile profile;
     @Override
-    public ResponseEntity<?> save(CommentSaveRequest commentSaveRequest, Long postId) {
+    public CommentResponse save(CommentSaveRequest commentSaveRequest, Long postId) {
         Comment comment = commentRequestMapper.to(commentSaveRequest);
-        comment.setImages(ListUtils.onetoList(imageService.findOneById(commentSaveRequest.getImageId())));
+        comment.setImages(ListUtils.oneToList(imageService.findOneById(commentSaveRequest.getImageId())));
         Post post = postRepository.findOneById(postId);
         return convertToCommentResponse(post,comment);
     }
 
     @Override
-    public ResponseEntity<?> update(CommentUpdateRequest commentUpdateRequest, Long postId) {
+    public CommentResponse update(CommentUpdateRequest commentUpdateRequest, Long postId) {
         Comment comment = commentUpdateRequestMapper.to(commentUpdateRequest);
-        comment.setImages(ListUtils.onetoList(imageService.findOneById(commentUpdateRequest.getImageId())));
+        comment.setImages(ListUtils.oneToList(imageService.findOneById(commentUpdateRequest.getImageId())));
         Post post = postRepository.findOneById(postId);
-
-        for(Comment cmt : post.getComments()){
-            if(cmt.getId().equals(comment.getId())){
-                if(cmt.getUser().getId().equals(profile.getId())){
-                    comment.setCreatedDate(cmt.getCreatedDate());
-                    return convertToCommentResponse(post,comment);
-                }
-                return new ResponseEntity<>(new JsonException(400,"không có quyền sửa comment"), HttpStatus.NOT_FOUND);
-            }
+        if(post == null) throw new ObjectNotFoundException("Bài viết không tồn tại");
+        Comment commentFilter = post.getComments().stream().filter(cmt-> cmt.getId().equals(comment.getId())).findAny().orElse(null);
+        if(commentFilter==null) throw new ObjectNotFoundException("Comment không tồn tại");
+        if(commentFilter.getUser().getId().equals(profile.getId()) ||  userService.isAdmin(profile)){
+            comment.setCreatedDate(commentFilter.getCreatedDate());
+            return convertToCommentResponse(post,comment);
         }
-        return new ResponseEntity<>(new JsonException(404,"Comment không tồn tại"), HttpStatus.NOT_FOUND);
+        throw new BadRequestException("không có quyền sửa comment");
     }
 
-    private ResponseEntity<?> convertToCommentResponse(Post post, Comment comment){
+    private CommentResponse convertToCommentResponse(Post post, Comment comment){
         if(post!=null){
             if(post.getAuthor().isActive()){
                 User author = userService.findOneById(profile.getId());
@@ -78,37 +75,34 @@ public class CommentServiceImpl implements CommentService {
                 commentResponse.setUserAuthorResponse(userAuthorResponseUtils.convert(comment.getUser()));
                 commentResponse.setImageResponse(imageReponseMapper.from(ListUtils.getLast(comment.getImages())));
 
-                return new ResponseEntity<>(commentResponse,HttpStatus.CREATED);
+                return commentResponse;
             }
 
-            return new ResponseEntity<>(new JsonException(404,"Bài viêt không tồn tại"), HttpStatus.NOT_FOUND);
+            throw new ObjectNotFoundException("Bài viết không tồn tại");
         }
-        return new ResponseEntity<>(new JsonException(404,"Bài viêt không tồn tại"), HttpStatus.NOT_FOUND);
+        throw new ObjectNotFoundException("Bài viết không tồn tại");
     }
 
     @Override
     public void delete(Long postId, Long commentId) {
         Post post = postRepository.findOneById(postId);
-        if(post!=null){
-            if(post.getAuthor().isActive()){
-                Comment comment = commentRepository.findOneById(commentId);
-                if(comment!=null){
-                    for(Comment cmt : post.getComments()){
-                        if(cmt.getId().equals(comment.getId())){
-                            if(cmt.getUser().getId().equals(profile.getId()) || userService.isAdmin(profile))
-                                commentRepository.deleteById(commentId);
-                            break;
-                        }
-                    }
-                }
-
-            }
+        if(post == null || !post.getAuthor().isActive())
+            throw new ObjectNotFoundException("Bài viết không tồn tại");
+        Comment comment = commentRepository.findOneById(commentId);
+        if(comment == null)
+            throw new ObjectNotFoundException("Comment không tồn tại");
+        Comment commentFilter = post.getComments().stream().filter(cmt->cmt.getId().equals(comment.getId())).findAny().orElse(null);
+        if(commentFilter==null)
+            throw new ObjectNotFoundException("Comment không tồn tại");
+        if(commentFilter.getUser().getId().equals(profile.getId()) || userService.isAdmin(profile)){
+            commentRepository.deleteById(commentId);
+            throw new OKException("Xóa comment thành công");
         }
-        //commentRepository.deleteComment(postId,profile.getId(),commentId);
+        throw new BadRequestException("Không có quyền xóa comment");
     }
 
     @Override
-    public ResponseEntity<?> findAllByPost(Long postId) {
+    public List<CommentResponse> findAllByPost(Long postId) {
         Post post = postRepository.findOneById(postId);
         if (post!=null){
             List<Comment> comments = post.getComments();
@@ -119,7 +113,7 @@ public class CommentServiceImpl implements CommentService {
                     commentResponse.setImageResponse(imageReponseMapper.from(ListUtils.getLast(comment.getImages())));
                     commentResponses.add(commentResponse);
             }
-            return new ResponseEntity<>(commentResponses,HttpStatus.CREATED);
+            return commentResponses;
         }
         return null;
     }

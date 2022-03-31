@@ -3,7 +3,10 @@ package com.viuniteam.socialviuni.service.impl;
 import com.viuniteam.socialviuni.dto.response.friend.FriendResponse;
 import com.viuniteam.socialviuni.entity.Friend;
 import com.viuniteam.socialviuni.entity.User;
+import com.viuniteam.socialviuni.exception.BadRequestException;
 import com.viuniteam.socialviuni.exception.JsonException;
+import com.viuniteam.socialviuni.exception.OKException;
+import com.viuniteam.socialviuni.exception.ObjectNotFoundException;
 import com.viuniteam.socialviuni.mapper.response.friend.FriendResponseMapper;
 import com.viuniteam.socialviuni.mapper.response.user.UserInfoResponseMapper;
 import com.viuniteam.socialviuni.repository.FriendRepository;
@@ -33,13 +36,13 @@ public class FriendServiceImpl implements FriendService {
     }
 
     @Override
-    public ResponseEntity<?> addFriend(Long idSource, Long idTarget) {
+    public void addFriend(Long idSource, Long idTarget) {
 
         if(this.itIsMe(idSource,idTarget))
-            return new ResponseEntity<>(new JsonException(400, "Không thể kết bạn với chính mình"), HttpStatus.BAD_REQUEST);
+            throw new BadRequestException("Không thể kết bạn với chính mình");
 
         if(this.isFriend(idSource,idTarget))
-            return new ResponseEntity<>(new JsonException(400, "Đã kết bạn rồi"), HttpStatus.BAD_REQUEST);
+            throw new BadRequestException("Đã kết bạn rồi");
         else {
             User userSource = userService.findOneById(idSource);
             User userTarget = userService.findOneById(idTarget);
@@ -62,41 +65,19 @@ public class FriendServiceImpl implements FriendService {
             userTarget.setFriends(friendTargetList);
             userService.update(userTarget);
 
-            return new ResponseEntity<>(new JsonException(200,"Kết bạn thành công"), HttpStatus.CREATED);
+            throw new OKException("Kết bạn thành công");
         }
     }
 
     @Override
-    public ResponseEntity<?> removeFriend(Long idSource, Long idTarget) {
+    public void removeFriend(Long idSource, Long idTarget) {
 
         if(this.itIsMe(idSource,idTarget))
-            return new ResponseEntity<>(new JsonException(400, "Không thể hủy kết bạn với chính mình"), HttpStatus.BAD_REQUEST);
+            throw new BadRequestException("Không thể hủy kết bạn với chính mình");
         if(this.isFriend(idSource,idTarget)){
-            /*User userSource = userService.findOneById(idSource);
-            User userTarget = userService.findOneById(idTarget);
-            List<Friend> friendSourceList = userSource.getFriends();
-            List<Friend> friendTargetList = userTarget.getFriends();
-            Long idFriendSource=0L;
-            Long idFriendTarget=0L;
-            for(Friend friend : friendSourceList){
-                if(friend.getUser().getId() == userTarget.getId()) {
-                    idFriendSource= friend.getId();
-                    break;
-                }
-            }
-            for(Friend friend : friendTargetList){
-                if(friend.getUser().getId() == userSource.getId()){
-                    idFriendTarget = friend.getId();
-                    break;
-                }
-            }
-            friendRepository.deleteUserFriends(idFriendSource);
-            friendRepository.deleteFriendById(idFriendSource);
-            friendRepository.deleteUserFriends(idFriendTarget);
-            friendRepository.deleteFriendById(idFriendTarget);*/
-
             User userSource = userService.findOneById(idSource);
             User userTarget = userService.findOneById(idTarget);
+
             List<Friend> friendSourceList = userSource.getFriends();
             List<Friend> friendTargetList = userTarget.getFriends();
             for(Friend friend : friendSourceList){
@@ -118,16 +99,16 @@ public class FriendServiceImpl implements FriendService {
                 }
             }
 
-            return new ResponseEntity<>(new JsonException(200, "Hủy kết bạn thành công"), HttpStatus.BAD_REQUEST);
+            throw new OKException("Hủy kết bạn thành công");
         }
-        return new ResponseEntity<>(new JsonException(400,"Chưa kết bạn"), HttpStatus.CREATED);
+        throw new BadRequestException("Chưa kết bạn");
     }
 
     @Override
-    public ResponseEntity<?> getAll(Long id) {
+    public List<FriendResponse> getAll(Long id) {
         User user = userService.findOneById(id);
         if(user == null)
-            return new ResponseEntity<>(new JsonException(404,"Người dùng không tồn tại"),HttpStatus.NOT_FOUND);
+            throw new ObjectNotFoundException("Người dùng không tồn tại");
 
         List<Friend> friendList = user.getFriends();
         List<FriendResponse> friendResponseList = new ArrayList<>();
@@ -136,13 +117,14 @@ public class FriendServiceImpl implements FriendService {
             friendResponse.setUserInfoResponse(userInfoResponseMapper.from(friend.getUser()));
             friendResponseList.add(friendResponse);
         });
-        return new ResponseEntity<>(friendResponseList,HttpStatus.ACCEPTED);
+        return friendResponseList;
     }
 
     @Override
     public boolean isFriend(Long idSource, Long idTarget) {
         User userSource = userService.findOneById(idSource);
         User userTarget = userService.findOneById(idTarget);
+        if (userTarget==null || !userTarget.isActive()) throw new ObjectNotFoundException("Tài khoản không tồn tại");
         List<Friend> friendSourceList = userSource.getFriends();
         List<Friend> friendTargetList = userTarget.getFriends();
         for(Friend friend : friendSourceList)
