@@ -34,7 +34,6 @@ public class UserController {
 
     @GetMapping("/me")
     public UserInfoResponse findById(){
-        checkLogin();
         return userService.findById(profile.getId());
     }
 
@@ -48,13 +47,6 @@ public class UserController {
     @PutMapping("/update")
     public void updateInfo(@Valid @RequestBody UserUpdateInfoRequest userUpdateInfoRequest){
         userService.updateInfo(userUpdateInfoRequest);
-    }
-    public void checkLogin(){
-        BrowserSaveRequest browserSaveRequest = new BrowserSaveRequest();
-        browserSaveRequest.setIp(httpServletRequest.getHeader("X-FORWARDED-FOR"));
-//        browserSaveRequest.setIp(httpServletRequest.getRemoteAddr());
-        browserSaveRequest.setBrowser(httpServletRequest.getHeader("User-Agent"));
-        browserService.save(browserSaveRequest);
     }
 
 }

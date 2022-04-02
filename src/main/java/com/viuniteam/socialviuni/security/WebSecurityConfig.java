@@ -4,6 +4,7 @@ import com.viuniteam.socialviuni.dto.Profile;
 import com.viuniteam.socialviuni.entity.User;
 import com.viuniteam.socialviuni.service.impl.UserServiceImpl;
 import lombok.RequiredArgsConstructor;
+import org.apache.catalina.filters.RemoteIpFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -61,7 +62,10 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     public AuthenticationManager authenticationManagerBean() throws Exception {
         return super.authenticationManagerBean();
     }
-
+    @Bean
+    public RemoteIpFilter remoteIpFilter() { // get ip from client
+        return new RemoteIpFilter();
+    }
 
     private static final String[] listUrlPermitAll= new String[]{"/login", "/register","/recovery","/home","/"};
 

@@ -1,8 +1,11 @@
 package com.viuniteam.socialviuni.controller.api;
 
 import com.viuniteam.socialviuni.dto.response.user.UserInfoResponse;
-import com.viuniteam.socialviuni.service.RequestService;
 import com.viuniteam.socialviuni.service.UserService;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -10,27 +13,19 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpUtils;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @Controller
 public class HomeController {
     @Autowired
-    private RequestService requestService;
-    @Autowired
     private UserService userService;
-//    @GetMapping("/home")
-    public String home(HttpServletRequest request){
-        PageRequest pageRequest = PageRequest.of(0,100);
-        Page<UserInfoResponse> userInfoResponsePage = userService.findAll(pageRequest);
-        List<UserInfoResponse> userInfoResponseList = userInfoResponsePage.toList();
-        request.setAttribute("users",userInfoResponseList);
-        return "index";
-    }
+
     @GetMapping("/home")
     @ResponseBody
     public List<UserInfoResponse> index(HttpServletRequest request){
-//        System.out.println(requestService.getClientIp(request));
         PageRequest pageRequest = PageRequest.of(0,100);
         Page<UserInfoResponse> userInfoResponsePage = userService.findAll(pageRequest);
         List<UserInfoResponse> userInfoResponseList = userInfoResponsePage.toList();
@@ -38,8 +33,21 @@ public class HomeController {
     }
     @RequestMapping(value = "/",method = RequestMethod.GET)
     public String top1(HttpServletRequest request){
-        request.setAttribute("userAgent","Trình duyệt của mày là: " + request.getHeader("User-Agent")+"-IP: "+ request.getHeader("X-FORWARDED-FOR"));;
+        request.setAttribute("userAgent","Trình duyệt của mày là: " +
+                request.getHeader("User-Agent"));
+        request.setAttribute("IP", "IP: "+request.getRemoteAddr()+" --- Vị trí: "+getPublicIP(request.getRemoteAddr()));
         return "top1";
     }
-
+    public String getPublicIP(String ip)
+    {
+        try {
+            Document doc = Jsoup.connect("https://www.geolocation.com/vi?ip="+ip).get();
+            Elements geolocation = doc.getElementsByClass("table table-ip table-striped").first().select("tbody").first().select("tr").get(1).select("td");
+            String address = geolocation.get(0).text() +" - "+ geolocation.get(1).text();
+            return address;
+        }
+        catch (IOException exception){
+            return "";
+        }
+    }
 }
