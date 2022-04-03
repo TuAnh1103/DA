@@ -9,6 +9,8 @@ import com.viuniteam.socialviuni.mapper.response.post.PostResponseMapper;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+
 @Component
 @AllArgsConstructor
 public class PostResponseUtils implements ResponseUtils<Post,PostResponse> {
@@ -20,5 +22,10 @@ public class PostResponseUtils implements ResponseUtils<Post,PostResponse> {
         User author = obj.getAuthor();
         postResponse.setAuthorResponse(userAuthorResponseUtils.convert(author));
         return postResponse;
+    }
+
+    @Override
+    public List<PostResponse> convert(List<Post> obj) {
+        return null;
     }
 }

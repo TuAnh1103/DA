@@ -9,6 +9,8 @@ import com.viuniteam.socialviuni.utils.ListUtils;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+
 @AllArgsConstructor
 @Component
 public class UserAuthorResponseUtils implements ResponseUtils<User,UserAuthorResponse> {
@@ -21,5 +23,10 @@ public class UserAuthorResponseUtils implements ResponseUtils<User,UserAuthorRes
         userAuthorResponse.setAvatar(imageReponseMapper.from(ListUtils.getLast(author.getAvatarImage())));
         userAuthorResponse.setCover(imageReponseMapper.from(ListUtils.getLast(author.getCoverImage())));
         return userAuthorResponse;
+    }
+
+    @Override
+    public List<UserAuthorResponse> convert(List<User> obj) {
+        return null;
     }
 }

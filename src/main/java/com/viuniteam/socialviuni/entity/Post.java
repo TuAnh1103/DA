@@ -40,4 +40,7 @@ public class Post extends BaseEntity{
     @OneToMany(mappedBy = "post",cascade = CascadeType.REMOVE)
     private List<Share> shares = new ArrayList<>();
 
+    @OneToMany(mappedBy = "post", cascade = CascadeType.REMOVE)
+    private List<Bookmark> bookmarks = new ArrayList<>();
+
 }

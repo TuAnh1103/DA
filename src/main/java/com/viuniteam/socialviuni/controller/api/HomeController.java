@@ -4,7 +4,6 @@ import com.viuniteam.socialviuni.dto.response.user.UserInfoResponse;
 import com.viuniteam.socialviuni.service.UserService;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -14,8 +13,6 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 @Controller
@@ -35,7 +32,8 @@ public class HomeController {
     public String top1(HttpServletRequest request){
         request.setAttribute("userAgent","Trình duyệt của mày là: " +
                 request.getHeader("User-Agent"));
-        request.setAttribute("IP", "IP: "+request.getRemoteAddr()+" --- Vị trí: "+getPublicIP(request.getRemoteAddr()));
+        String ip = request.getRemoteAddr();
+        request.setAttribute("IP", "IP: "+ip+" --- Vị trí: "+getPublicIP(ip));
         return "top1";
     }
     public String getPublicIP(String ip)

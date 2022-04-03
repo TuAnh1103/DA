@@ -9,6 +9,8 @@ import com.viuniteam.socialviuni.mapper.response.share.ShareResponseMapper;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+
 @Component
 @AllArgsConstructor
 public class ShareResponseUtils implements ResponseUtils<Share, ShareResponse> {
@@ -21,5 +23,10 @@ public class ShareResponseUtils implements ResponseUtils<Share, ShareResponse> {
         shareResponse.setUserAuthorResponse(userAuthorResponseUtils.convert(obj.getUser()));
         shareResponse.setPostResponse(postResponseUtils.convert(obj.getPost()));
         return shareResponse;
+    }
+
+    @Override
+    public List<ShareResponse> convert(List<Share> obj) {
+        return null;
     }
 }

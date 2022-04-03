@@ -7,6 +7,7 @@ import com.viuniteam.socialviuni.dto.utils.post.PostResponseUtils;
 import com.viuniteam.socialviuni.entity.Image;
 import com.viuniteam.socialviuni.entity.Post;
 import com.viuniteam.socialviuni.entity.User;
+import com.viuniteam.socialviuni.enumtype.PrivicyPostType;
 import com.viuniteam.socialviuni.exception.*;
 import com.viuniteam.socialviuni.mapper.request.post.PostRequestMapper;
 import com.viuniteam.socialviuni.repository.PostRepository;
@@ -81,18 +82,15 @@ public class PostServiceImpl implements PostService {
         List<PostResponse> postResponseList = new ArrayList<>();
         listPost.forEach(post -> {
             PostResponse postResponse = postResponseUtils.convert(post);
-            if(post.getPrivicy() == 2){ // quyen rieng tu ban be
-                if(friendService.isFriend(post.getAuthor().getId(),profile.getId()) || post.getAuthor().getId() == profile.getId()){
+            if(post.getPrivicy() == PrivicyPostType.FRIEND.getCode()){ // quyen rieng tu ban be
+                if(friendService.isFriend(post.getAuthor().getId(),profile.getId()) || post.getAuthor().getId().equals(profile.getId()))
                     postResponseList.add(postResponse);
-                }
             }
-            else if(post.getPrivicy() == 3){ // quyen rieng tu chi minh toi
-                if (post.getAuthor().getId() == profile.getId()){
+            else if(post.getPrivicy() == PrivicyPostType.ONLY_ME.getCode()){ // quyen rieng tu chi minh toi
+                if (post.getAuthor().getId() == profile.getId())
                     postResponseList.add(postResponse);
-                }
             }
             else postResponseList.add(postResponse); // quyen rieng tu cong khai
-
         });
         return postResponseList;
     }
