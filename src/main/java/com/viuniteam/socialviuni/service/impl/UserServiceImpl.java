@@ -124,7 +124,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public void recoveryPassword(UserRecoveryPasswordRequest userRecoveryPasswordRequest) {
         Optional<User> users = userRepository.findByUsername(userRecoveryPasswordRequest.getUsername());
-        users.orElseThrow(()-> new ObjectNotFoundException("User not found"));
+        users.orElseThrow(()-> new ObjectNotFoundException("Tên tài khoản không tồn tại"));
         User user = users.get();
         String email = user.getEmail();
         String code = userRecoveryPasswordRequest.getCode();

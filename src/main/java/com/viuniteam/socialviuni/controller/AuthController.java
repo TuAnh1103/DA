@@ -3,6 +3,8 @@ package com.viuniteam.socialviuni.controller;
 import com.viuniteam.socialviuni.dto.request.browser.BrowserSaveRequest;
 import com.viuniteam.socialviuni.dto.request.user.UserRecoveryPasswordRequest;
 import com.viuniteam.socialviuni.dto.request.user.UserSaveRequest;
+import com.viuniteam.socialviuni.entity.User;
+import com.viuniteam.socialviuni.exception.ObjectNotFoundException;
 import com.viuniteam.socialviuni.security.JwtTokenUtil;
 import com.viuniteam.socialviuni.security.jwt.JwtRequest;
 import com.viuniteam.socialviuni.security.jwt.JwtResponse;
@@ -21,6 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
+import java.util.Optional;
 
 @RestController
 @AllArgsConstructor
@@ -35,19 +38,21 @@ public class AuthController {
     }
     @PostMapping("/login")
     public ResponseEntity<?> createAuthenticationToken(@RequestBody JwtRequest authenticationRequest, HttpServletRequest httpServletRequest) throws Exception {
-        authenticate(authenticationRequest.getUsername(), authenticationRequest.getPassword());
+        String username = authenticate(authenticationRequest.getUsername(), authenticationRequest.getPassword());
 
-        final UserDetails userDetails = userService.loadUserByUsername(authenticationRequest.getUsername());
+        final UserDetails userDetails = userService.loadUserByUsername(username);
 
         final String token = jwtTokenUtil.generateToken(userDetails);
 
         // save browser
-        BrowserSaveRequest browserSaveRequest = BrowserSaveRequest.builder()
-                .ip(httpServletRequest.getRemoteAddr())
-                .browser(httpServletRequest.getHeader("User-Agent"))
-                .user(userService.findByUsername(authenticationRequest.getUsername()))
-                .build();
-        browserService.save(browserSaveRequest);
+        if(httpServletRequest!=null){
+            BrowserSaveRequest browserSaveRequest = BrowserSaveRequest.builder()
+                    .ip(httpServletRequest.getRemoteAddr())
+                    .browser(httpServletRequest.getHeader("User-Agent"))
+                    .user(userService.findByUsername(username))
+                    .build();
+            browserService.save(browserSaveRequest);
+        }
         // return token
         return ResponseEntity.ok(new JwtResponse(token));
     }
@@ -55,14 +60,30 @@ public class AuthController {
     public void recoveryPassword(@Valid @RequestBody UserRecoveryPasswordRequest userRecoveryPasswordRequest){
         userService.recoveryPassword(userRecoveryPasswordRequest);
     }
-    private void authenticate(String username, String password) throws Exception {
+    private String authenticate(String username, String password) throws Exception {
+        if(username.contains("@")){
+            try {
+                username=userService.findByEmail(username).get().getUsername();
+            }
+            catch (Exception e){
+                throw new ObjectNotFoundException("Tên tài khoản không tồn tại");
+            }
+        }
+        else {
+            try {
+                userService.findByUsername(username);
+            }
+            catch (Exception e){
+                throw new ObjectNotFoundException("Tên tài khoản không tồn tại");
+            }
+        }
         try {
             authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));
-
         } catch (DisabledException e) {
             throw new Exception("USER_DISABLED", e);
         } catch (BadCredentialsException e) {
             throw new Exception("INVALID_CREDENTIALS", e);
         }
+        return username;
     }
 }
