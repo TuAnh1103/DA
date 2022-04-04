@@ -12,4 +12,12 @@ public class OffensiveKeyword {
     private Long id;
     @Column
     private String keyword;
+
+    public OffensiveKeyword(String keyword) {
+        this.keyword = keyword;
+    }
+
+    public OffensiveKeyword() {
+
+    }
 }

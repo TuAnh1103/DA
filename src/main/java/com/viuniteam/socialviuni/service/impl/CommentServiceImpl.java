@@ -19,6 +19,7 @@ import com.viuniteam.socialviuni.repository.CommentRepository;
 import com.viuniteam.socialviuni.repository.PostRepository;
 import com.viuniteam.socialviuni.service.CommentService;
 import com.viuniteam.socialviuni.service.ImageService;
+import com.viuniteam.socialviuni.service.OffensiveKeywordService;
 import com.viuniteam.socialviuni.service.UserService;
 import com.viuniteam.socialviuni.utils.ListUtils;
 import lombok.AllArgsConstructor;
@@ -40,8 +41,11 @@ public class CommentServiceImpl implements CommentService {
     private final ImageService imageService;
     private final UserService userService;
     private final Profile profile;
+    private final OffensiveKeywordService offensiveKeywordService;
     @Override
     public CommentResponse save(CommentSaveRequest commentSaveRequest, Long postId) {
+        if(offensiveKeywordService.isExist(commentSaveRequest.getContent()))
+            throw new BadRequestException("Comment không được chứa từ ngữ thô tục");
         Comment comment = commentRequestMapper.to(commentSaveRequest);
         comment.setImages(ListUtils.oneToList(imageService.findOneById(commentSaveRequest.getImageId())));
         Post post = postRepository.findOneById(postId);
@@ -50,6 +54,8 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     public CommentResponse update(CommentUpdateRequest commentUpdateRequest, Long postId) {
+        if(offensiveKeywordService.isExist(commentUpdateRequest.getContent()))
+            throw new BadRequestException("Comment không được chứa từ ngữ thô tục");
         Comment comment = commentUpdateRequestMapper.to(commentUpdateRequest);
         comment.setImages(ListUtils.oneToList(imageService.findOneById(commentUpdateRequest.getImageId())));
         Post post = postRepository.findOneById(postId);

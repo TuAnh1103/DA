@@ -11,10 +11,7 @@ import com.viuniteam.socialviuni.enumtype.PrivicyPostType;
 import com.viuniteam.socialviuni.exception.*;
 import com.viuniteam.socialviuni.mapper.request.post.PostRequestMapper;
 import com.viuniteam.socialviuni.repository.PostRepository;
-import com.viuniteam.socialviuni.service.FriendService;
-import com.viuniteam.socialviuni.service.ImageService;
-import com.viuniteam.socialviuni.service.PostService;
-import com.viuniteam.socialviuni.service.UserService;
+import com.viuniteam.socialviuni.service.*;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -33,8 +30,11 @@ public class PostServiceImpl implements PostService {
     private final FriendService friendService;
     private final ImageService imageService;
     private final PostResponseUtils postResponseUtils;
+    private final OffensiveKeywordService offensiveKeywordService;
     @Override
     public PostResponse save(PostSaveRequest postSaveRequest) {
+        if(offensiveKeywordService.isExist(postSaveRequest.getContent()))
+            throw new BadRequestException("Bài viết không được chứa từ ngữ thô tục");
         Post post = postRequestMapper.to(postSaveRequest);
         post.setAuthor(userService.findOneById(profile.getId()));
 
@@ -46,6 +46,8 @@ public class PostServiceImpl implements PostService {
 
     @Override
     public PostResponse update(Long id, PostSaveRequest postSaveRequest) {
+        if(offensiveKeywordService.isExist(postSaveRequest.getContent()))
+            throw new BadRequestException("Bài viết không được chứa từ ngữ thô tục");
         Post oldPost = postRepository.findOneById(id);
         if(oldPost == null)
             throw new ObjectNotFoundException("Bài viết không tồn tại");

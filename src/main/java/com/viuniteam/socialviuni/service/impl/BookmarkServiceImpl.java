@@ -37,7 +37,7 @@ public class BookmarkServiceImpl implements BookmarkService {
     @Override
     public BookmarkResponse save(Long postId) {
         Post post = postRepository.findOneById(postId);
-        if(post==null) throw new ObjectNotFoundException("Bài viết không tồn tại");
+        if(post==null || !post.getAuthor().isActive()) throw new ObjectNotFoundException("Bài viết không tồn tại");
 
         if(post.getPrivicy() == PrivicyPostType.FRIEND.getCode()){ // quyen rieng tu ban be
             if(friendService.isFriend(post.getAuthor().getId(),profile.getId()) || post.getAuthor().getId().equals(profile.getId()))
@@ -82,9 +82,11 @@ public class BookmarkServiceImpl implements BookmarkService {
         List<Bookmark> bookmarks = bookmarkRepository.findAllByUser(userService.findOneById(profile.getId()));
         List<BookmarkResponse> bookmarkResponses = new ArrayList<>();
         bookmarks.stream().forEach(bookmark -> {
-            BookmarkResponse bookmarkResponse = bookmarkResponseMapper.from(bookmark);
-            bookmarkResponse.setPostResponse(postResponseUtils.convert(bookmark.getPost()));
-            bookmarkResponses.add(bookmarkResponse);
+            if(bookmark.getPost().getAuthor().isActive()) {
+                BookmarkResponse bookmarkResponse = bookmarkResponseMapper.from(bookmark);
+                bookmarkResponse.setPostResponse(postResponseUtils.convert(bookmark.getPost()));
+                bookmarkResponses.add(bookmarkResponse);
+            }
         });
         return bookmarkResponses;
     }
