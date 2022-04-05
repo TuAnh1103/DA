@@ -101,8 +101,7 @@ public class PostServiceImpl implements PostService {
 
         List<PostResponse> postResponseList = new ArrayList<>();
         if(user.isActive() || (!user.isActive() && userService.isAdmin(profile))){ // tai khoan hoat dong, neu k hoat dong thi chi admin moi dc xem
-            List<Post> posts = postRepository.findByAuthor(user,pageable);
-            System.out.println(posts.size());
+            Page<Post> posts = postRepository.findAllByAuthor(user,pageable);
             posts.stream().forEach(post -> {
                 if(checkPrivicy(post,profile)){
                     PostResponse postResponse = postResponseUtils.convert(post);
