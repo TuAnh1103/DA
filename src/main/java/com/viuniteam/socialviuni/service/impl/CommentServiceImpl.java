@@ -17,10 +17,7 @@ import com.viuniteam.socialviuni.mapper.response.comment.CommentResponseMapper;
 import com.viuniteam.socialviuni.mapper.response.image.ImageReponseMapper;
 import com.viuniteam.socialviuni.repository.CommentRepository;
 import com.viuniteam.socialviuni.repository.PostRepository;
-import com.viuniteam.socialviuni.service.CommentService;
-import com.viuniteam.socialviuni.service.ImageService;
-import com.viuniteam.socialviuni.service.OffensiveKeywordService;
-import com.viuniteam.socialviuni.service.UserService;
+import com.viuniteam.socialviuni.service.*;
 import com.viuniteam.socialviuni.utils.ListUtils;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -33,6 +30,7 @@ import java.util.List;
 public class CommentServiceImpl implements CommentService {
     private final CommentRepository commentRepository;
     private final PostRepository postRepository;
+    private final PostService postService;
     private final CommentRequestMapper commentRequestMapper;
     private final CommentUpdateRequestMapper commentUpdateRequestMapper;
     private final CommentResponseMapper commentResponseMapper;
@@ -60,13 +58,16 @@ public class CommentServiceImpl implements CommentService {
         comment.setImages(ListUtils.oneToList(imageService.findOneById(commentUpdateRequest.getImageId())));
         Post post = postRepository.findOneById(postId);
         if(post == null) throw new ObjectNotFoundException("Bài viết không tồn tại");
-        Comment commentFilter = post.getComments().stream().filter(cmt-> cmt.getId().equals(comment.getId())).findAny().orElse(null);
+        Comment commentFilter = post.getComments().stream()
+                .filter(cmt-> cmt.getId().equals(comment.getId()))
+                .findAny()
+                .orElse(null);
         if(commentFilter==null) throw new ObjectNotFoundException("Comment không tồn tại");
         if(commentFilter.getUser().getId().equals(profile.getId()) ||  userService.isAdmin(profile)){
             comment.setCreatedDate(commentFilter.getCreatedDate());
             return convertToCommentResponse(post,comment);
         }
-        throw new BadRequestException("không có quyền sửa comment");
+        throw new BadRequestException("Không có quyền sửa comment");
     }
 
     private CommentResponse convertToCommentResponse(Post post, Comment comment){
@@ -110,18 +111,18 @@ public class CommentServiceImpl implements CommentService {
     @Override
     public List<CommentResponse> findAllByPost(Long postId) {
         Post post = postRepository.findOneById(postId);
-        if (post!=null){
+        if(post==null) throw new ObjectNotFoundException("Bài viết không tồn tại");
+        List<CommentResponse> commentResponses = new ArrayList<>();
+        if(postService.checkPrivicy(post,profile)){
             List<Comment> comments = post.getComments();
-            List<CommentResponse> commentResponses = new ArrayList<>();
             for(Comment comment: comments){
                     CommentResponse commentResponse = commentResponseMapper.from(comment);
                     commentResponse.setUserAuthorResponse(userAuthorResponseUtils.convert(comment.getUser()));
                     commentResponse.setImageResponse(imageReponseMapper.from(ListUtils.getLast(comment.getImages())));
                     commentResponses.add(commentResponse);
             }
-            return commentResponses;
         }
-        return null;
+        return commentResponses;
     }
 
 }

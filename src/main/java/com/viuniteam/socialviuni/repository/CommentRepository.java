@@ -14,7 +14,7 @@ import java.util.List;
 public interface CommentRepository extends JpaRepository<Comment,Long> {
     void deleteById(Long id);
     Comment findOneById(Long id);
-    List<Comment> findAllByPost(Post post);
+    Long countByPost(Post post);
 
     @Modifying
     @Query(value = "delete Comment from Comment comment" +

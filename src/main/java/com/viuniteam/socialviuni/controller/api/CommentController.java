@@ -12,21 +12,21 @@ import java.util.List;
 
 @RestController
 @AllArgsConstructor
-@RequestMapping("/comment/")
+@RequestMapping("/comment")
 public class CommentController {
     private final CommentService commentService;
 
-    @PostMapping("/add/{postId}")
+    @PostMapping("/{postId}")
     public CommentResponse addComment(@RequestBody CommentSaveRequest commentSaveRequest, @PathVariable("postId") Long postId){
         return commentService.save(commentSaveRequest,postId);
     }
 
-    @PutMapping("/update/{postId}")
+    @PutMapping("/{postId}")
     public CommentResponse updateComment(@RequestBody CommentUpdateRequest commentUpdateRequest, @PathVariable("postId") Long postId){
         return commentService.update(commentUpdateRequest,postId);
     }
 
-    @DeleteMapping("/delete/{postId}/{commentId}")
+    @DeleteMapping("/{postId}/{commentId}")
     public void deleteComment(@PathVariable("postId") Long postId,@PathVariable("commentId") Long commentId){
         commentService.delete(postId,commentId);
     }

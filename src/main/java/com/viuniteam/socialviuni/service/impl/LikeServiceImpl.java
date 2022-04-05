@@ -9,6 +9,7 @@ import com.viuniteam.socialviuni.exception.ObjectNotFoundException;
 import com.viuniteam.socialviuni.repository.LikeRepository;
 import com.viuniteam.socialviuni.repository.PostRepository;
 import com.viuniteam.socialviuni.service.LikeService;
+import com.viuniteam.socialviuni.service.PostService;
 import com.viuniteam.socialviuni.service.UserService;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -43,13 +44,5 @@ public class LikeServiceImpl implements LikeService {
     @Override
     public boolean checkLiked(Post post, User user) {
         return likeRepository.findOneByPostAndUser(post,user)!=null;
-    }
-    @Override
-    public Long countLikePost(Long postId) {
-        Post post = postRepository.findOneById(postId);
-        if(post!=null){
-            return likeRepository.countByPost(post);
-        }
-        return 0L;
     }
 }

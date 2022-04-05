@@ -7,5 +7,4 @@ import org.springframework.http.ResponseEntity;
 public interface LikeService {
     void like(Long postId);
     boolean checkLiked(Post post, User user);
-    Long countLikePost(Long postId);
 }

@@ -13,8 +13,9 @@ import com.viuniteam.socialviuni.mapper.request.post.PostRequestMapper;
 import com.viuniteam.socialviuni.repository.PostRepository;
 import com.viuniteam.socialviuni.service.*;
 import lombok.AllArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -77,28 +78,47 @@ public class PostServiceImpl implements PostService {
 
 
     @Override
-    public List<PostResponse> listPost(Long id) {
-
-        User user = userService.findOneById(id);
-        List<Post> listPost = postRepository.findByAuthor(user);
+    public List<PostResponse> listPost(Long userId) {
+        User user = userService.findOneById(userId);
+        if(user==null) throw new ObjectNotFoundException("Tài khoản không tồn tại");
         List<PostResponse> postResponseList = new ArrayList<>();
-        listPost.forEach(post -> {
-            PostResponse postResponse = postResponseUtils.convert(post);
-            if(post.getPrivicy() == PrivicyPostType.FRIEND.getCode()){ // quyen rieng tu ban be
-                if(friendService.isFriend(post.getAuthor().getId(),profile.getId()) || post.getAuthor().getId().equals(profile.getId()))
+        if(user.isActive() || (!user.isActive() && userService.isAdmin(profile))){ // tai khoan hoat dong, neu k hoat dong thi chi admin moi dc xem
+            List<Post> listPost = postRepository.findByAuthor(user);
+            listPost.forEach(post -> {
+                if(checkPrivicy(post,profile)){
+                    PostResponse postResponse = postResponseUtils.convert(post);
                     postResponseList.add(postResponse);
-            }
-            else if(post.getPrivicy() == PrivicyPostType.ONLY_ME.getCode()){ // quyen rieng tu chi minh toi
-                if (post.getAuthor().getId() == profile.getId())
-                    postResponseList.add(postResponse);
-            }
-            else postResponseList.add(postResponse); // quyen rieng tu cong khai
-        });
+                }
+            });
+        }
         return postResponseList;
     }
+
+    @Override
+    public Page<PostResponse> listPost(Long userId, Pageable pageable) {
+        User user = userService.findOneById(userId);
+        if(user==null) throw new ObjectNotFoundException("Tài khoản không tồn tại");
+
+        List<PostResponse> postResponseList = new ArrayList<>();
+        if(user.isActive() || (!user.isActive() && userService.isAdmin(profile))){ // tai khoan hoat dong, neu k hoat dong thi chi admin moi dc xem
+            List<Post> posts = postRepository.findByAuthor(user,pageable);
+            System.out.println(posts.size());
+            posts.stream().forEach(post -> {
+                if(checkPrivicy(post,profile)){
+                    PostResponse postResponse = postResponseUtils.convert(post);
+                    postResponseList.add(postResponse);
+
+                }
+            });
+            return new PageImpl<>(postResponseList, pageable, postResponseList.size());
+        }
+        return null;
+    }
+
     @Override
     public PostResponse findOneById(Long id) {
         Post post = postRepository.findOneById(id);
+        if(post == null || !checkPrivicy(post,profile)) throw new ObjectNotFoundException("Bài viết không tồn tại");
         return postResponseUtils.convert(post);
     }
 
@@ -115,11 +135,29 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public boolean myPost(Long id) {
-        List<Post> postList = postRepository.findByAuthor(userService.findOneById(profile.getId()));
-        for(Post post : postList)
-            if(post.getId() == id) return true;
-        return false;
+    public boolean myPost(Long postId) {
+        Post post = postRepository.findOneByAuthorAndId(userService.findOneById(profile.getId()),postId);
+        return post!=null;
+    }
+
+    @Override
+    public boolean checkPrivicy(Post post, Profile profile) { // check quyen rieng tu bai viet
+        if(post.getPrivicy() == PrivicyPostType.FRIEND.getCode()){ // quyen rieng tu ban be
+            if(friendService.isFriend(post.getAuthor().getId(),profile.getId())
+                    || post.getAuthor().getId().equals(profile.getId())
+                    || userService.isAdmin(profile))
+                return true;
+
+            return false;
+        }
+        else if(post.getPrivicy() == PrivicyPostType.ONLY_ME.getCode()){ // quyen rieng tu chi minh toi
+            if (post.getAuthor().getId() == profile.getId() || userService.isAdmin(profile))
+                return true;
+
+            return false;
+        }
+        else                // quyen rieng tu cong khai
+            return true;
     }
 
     public List<Image> listImageFromRequest(PostSaveRequest postSaveRequest){

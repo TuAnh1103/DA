@@ -23,7 +23,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
-import java.util.Optional;
 
 @RestController
 @AllArgsConstructor
@@ -62,20 +61,13 @@ public class AuthController {
     }
     private String authenticate(String username, String password) throws Exception {
         if(username.contains("@")){
-            try {
-                username=userService.findByEmail(username).get().getUsername();
-            }
-            catch (Exception e){
-                throw new ObjectNotFoundException("Tên tài khoản không tồn tại");
-            }
+            User user = userService.findByEmail(username);
+            if(user == null) throw new ObjectNotFoundException("Tên tài khoản không tồn tại");
+            username = user.getUsername();
         }
         else {
-            try {
-                userService.findByUsername(username);
-            }
-            catch (Exception e){
-                throw new ObjectNotFoundException("Tên tài khoản không tồn tại");
-            }
+            User user = userService.findByUsername(username);
+            if(user==null) throw new ObjectNotFoundException("Tên tài khoản không tồn tại");
         }
         try {
             authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));

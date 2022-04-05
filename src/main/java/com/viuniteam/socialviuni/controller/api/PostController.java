@@ -5,7 +5,10 @@ import com.viuniteam.socialviuni.dto.request.post.PostSaveRequest;
 import com.viuniteam.socialviuni.dto.response.post.PostResponse;
 import com.viuniteam.socialviuni.repository.PostRepository;
 import com.viuniteam.socialviuni.service.PostService;
+import com.viuniteam.socialviuni.utils.PageInfo;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -15,12 +18,12 @@ import javax.validation.Valid;
 import java.util.List;
 
 @RestController
-@RequestMapping("/post/")
+@RequestMapping("/post")
 @AllArgsConstructor
 public class PostController {
     private final PostService postService;
     private final Profile profile;
-    @PostMapping("/add")
+    @PostMapping
     public PostResponse savePost(@Valid @RequestBody PostSaveRequest postSaveRequest){
         return postService.save(postSaveRequest);
     }
@@ -34,13 +37,25 @@ public class PostController {
         postService.delete(idPost);
     }
 
-    @GetMapping("/getall/{id}")
-    public List<PostResponse> getAll(@PathVariable("id") Long id){
-        return postService.listPost(id);
+    @GetMapping("/{postId}")
+    public PostResponse findOneById(@PathVariable("postId") Long postId){
+        return postService.findOneById(postId);
     }
 
-    @GetMapping("/getall/me")
+    @GetMapping("/all/{userId}")
+    public List<PostResponse> getAll(@PathVariable("userId") Long userId){
+        return postService.listPost(userId);
+    }
+    @GetMapping("/getall/{userId}")
+    public Page<PostResponse> getAllPage(@PathVariable("userId") Long userId, @RequestBody PageInfo pageInfo){
+        PageRequest pageRequest = PageRequest.of(pageInfo.getIndex(), pageInfo.getSize());
+        Page<PostResponse> postResponsePage = postService.listPost(userId,pageRequest);
+        return postResponsePage;
+    }
+
+    @GetMapping("/all/me")
     public List<PostResponse> getAll(){
         return postService.listPost(profile.getId());
     }
+
 }

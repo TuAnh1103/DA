@@ -5,6 +5,7 @@ import com.viuniteam.socialviuni.dto.request.user.UserRecoveryPasswordRequest;
 import com.viuniteam.socialviuni.dto.request.user.UserSaveRequest;
 import com.viuniteam.socialviuni.dto.request.user.UserUpdateInfoRequest;
 import com.viuniteam.socialviuni.dto.response.user.UserInfoResponse;
+import com.viuniteam.socialviuni.dto.utils.user.UserInfoResponseUtils;
 import com.viuniteam.socialviuni.entity.Address;
 import com.viuniteam.socialviuni.entity.Image;
 import com.viuniteam.socialviuni.entity.Role;
@@ -47,8 +48,6 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private RoleRepository roleRepository;
     @Autowired
-    private UserInfoResponseMapper userResponseMapper;
-    @Autowired
     private UserRequestMapper userRequestMapper;
     @Autowired
     private UserRepository userRepository;
@@ -67,10 +66,8 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     private PostService postService;
-
     @Autowired
-    private ImageReponseMapper imageReponseMapper;
-
+    private UserInfoResponseUtils userInfoResponseUtils;
     @Override
     public void save(UserSaveRequest userSaveRequest) {
         User user = userRequestMapper.to(userSaveRequest);
@@ -78,13 +75,11 @@ public class UserServiceImpl implements UserService {
         List<Long> roleIds = Arrays.asList(roleRepository.findOneByName("ROLE_USER").getId());
         List<Role> roles = roleRepository.findAllByIdIn(roleIds);
         user.setRoles(roles);
-        Optional<User> checkUsername = userRepository.findByUsername(user.getUsername());
-        Optional<User> checkEmail = userRepository.findByEmail(user.getEmail());
 
-        if(!checkUsername.isEmpty())
+        if(existsByUsername(user.getUsername()))
             throw new BadRequestException("Username đã tồn tại");
 
-        if(!checkEmail.isEmpty())
+        if(existsByEmail(user.getEmail()))
             throw new BadRequestException("Email đã tồn tại");
 
         if(LocalDateTime.now().getYear() - user.getDob().getYear() < 12){
@@ -98,13 +93,11 @@ public class UserServiceImpl implements UserService {
     @Override
     public void register(UserSaveRequest userSaveRequest) {
         User user = userRequestMapper.to(userSaveRequest);
-        Optional<User> checkUsername = userRepository.findByUsername(user.getUsername());
-        Optional<User> checkEmail = userRepository.findByEmail(user.getEmail());
 
-        if(!checkUsername.isEmpty())
+        if(existsByUsername(user.getUsername()))
             throw new BadRequestException("Username đã tồn tại");
 
-        if(!checkEmail.isEmpty())
+        if(existsByEmail(user.getEmail()))
             throw new BadRequestException("Email đã tồn tại");
 
         if(LocalDateTime.now().getYear() - user.getDob().getYear() < 12){
@@ -123,9 +116,8 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void recoveryPassword(UserRecoveryPasswordRequest userRecoveryPasswordRequest) {
-        Optional<User> users = userRepository.findByUsername(userRecoveryPasswordRequest.getUsername());
-        users.orElseThrow(()-> new ObjectNotFoundException("Tên tài khoản không tồn tại"));
-        User user = users.get();
+        User user = findByUsername(userRecoveryPasswordRequest.getUsername());
+        if(user==null) throw new ObjectNotFoundException("Tên tài khoản không tồn tại");
         String email = user.getEmail();
         String code = userRecoveryPasswordRequest.getCode();
         String password = userRecoveryPasswordRequest.getPassword();
@@ -150,13 +142,7 @@ public class UserServiceImpl implements UserService {
         Optional<User> users= userRepository.findById(id);
         users.orElseThrow(()-> new ObjectNotFoundException("Tài khoản không tồn tại"));
         User user = users.get();
-        List<Image> avatarImages = user.getAvatarImage();
-        List<Image> coverImages = user.getCoverImage();
-        UserInfoResponse userInfoResponse = userResponseMapper.from(user);
-
-        userInfoResponse.setAvatar(imageReponseMapper.from(ListUtils.getLast(avatarImages)));
-        userInfoResponse.setCover(imageReponseMapper.from(ListUtils.getLast(coverImages)));
-        return userInfoResponse;
+        return userInfoResponseUtils.convert(user);
     }
 
     @Override
@@ -166,15 +152,15 @@ public class UserServiceImpl implements UserService {
             return users.map(userResponseMapper::from);
         }
         return null;*/
-        Page<User> users = userRepository.findAll(pageable.previousOrFirst());
-        List<UserInfoResponse> userInfoResponseList = new ArrayList<>();
+
+        /*List<UserInfoResponse> userInfoResponseList = new ArrayList<>();
         users.stream().forEach(user -> {
-            UserInfoResponse userInfoResponse = userResponseMapper.from(user);
-            userInfoResponse.setAvatar(imageReponseMapper.from(ListUtils.getLast(user.getAvatarImage())));
-            userInfoResponse.setCover(imageReponseMapper.from(ListUtils.getLast(user.getCoverImage())));
-            userInfoResponseList.add(userInfoResponse);
+            userInfoResponseList.add(userInfoResponseUtils.convert(user));
         });
         return new PageImpl<>(userInfoResponseList, pageable, userInfoResponseList.size());
+        */
+        Page<User> users = userRepository.findAll(pageable.previousOrFirst());
+        return users.map(userInfoResponseUtils::convert);
     }
 
     @Override
@@ -185,12 +171,12 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User findByUsername(String username) {
-        return userRepository.findByUsername(username).get();
+        return userRepository.findOneByUsername(username);
     }
 
     @Override
-    public Optional<User> findByEmail(String email) {
-        return userRepository.findByEmail(email);
+    public User findByEmail(String email) {
+        return userRepository.findOneByEmail(email);
     }
 
 
@@ -284,6 +270,16 @@ public class UserServiceImpl implements UserService {
     @Override
     public boolean isAdmin(Profile profile) {
         return profile.getRoles().contains("ROLE_ADMIN");
+    }
+
+    @Override
+    public Boolean existsByEmail(String email) {
+        return userRepository.existsByEmail(email);
+    }
+
+    @Override
+    public Boolean existsByUsername(String username) {
+        return userRepository.existsByUsername(username);
     }
 
 

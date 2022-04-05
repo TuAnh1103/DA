@@ -20,6 +20,6 @@ public class UserAuthorResponse {
     @JsonProperty("avatar_image")
     private ImageResponse avatar;
 
-    @JsonProperty("cover_image")
-    private ImageResponse cover;
+//    @JsonProperty("cover_image")
+//    private ImageResponse cover;
 }

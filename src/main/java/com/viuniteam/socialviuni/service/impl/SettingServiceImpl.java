@@ -56,8 +56,7 @@ public class SettingServiceImpl implements SettingService {
         if(user.getEmail().equals(userChangeEmailRequest.getEmail()))
             throw new BadRequestException("Email mới không được trùng với email cũ");
 
-        Optional<User> checkEmail = userService.findByEmail(userChangeEmailRequest.getEmail());
-        if(!checkEmail.isEmpty())
+        if(userService.findByEmail(userChangeEmailRequest.getEmail())!=null)
             throw new BadRequestException("Email đã tồn tại");
 
         if(userChangeEmailRequest.getCode() != null){ // gửi kèm code

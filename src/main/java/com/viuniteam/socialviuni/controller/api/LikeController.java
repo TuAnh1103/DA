@@ -6,7 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/like/")
+@RequestMapping("/like")
 @AllArgsConstructor
 public class LikeController {
     private final LikeService likeService;
@@ -16,9 +16,9 @@ public class LikeController {
         likeService.like(postId);
     }
 
-    @GetMapping("/count/{postId}")
-    public Long countLike(@PathVariable("postId") Long postId){
-        return likeService.countLikePost(postId);
-    }
+//    @GetMapping("/count/{postId}")
+//    public Long countLike(@PathVariable("postId") Long postId){
+//        return likeService.countLikePost(postId);
+//    }
 
 }

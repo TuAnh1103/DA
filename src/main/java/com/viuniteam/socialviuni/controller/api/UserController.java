@@ -21,12 +21,10 @@ import javax.validation.Valid;
 
 @RestController
 @AllArgsConstructor
-@RequestMapping("/user/")
+@RequestMapping("/user")
 public class UserController {
     private final UserService userService;
     private final Profile profile;
-    private final HttpServletRequest httpServletRequest;
-    private final BrowserService browserService;
     @GetMapping("/{id}")
     public UserInfoResponse findById(@PathVariable("id") Long id){
         return userService.findById(id);

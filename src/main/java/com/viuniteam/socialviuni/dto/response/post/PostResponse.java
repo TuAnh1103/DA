@@ -24,4 +24,10 @@ public class PostResponse{
     @JsonProperty("images")
     private List<ImageResponse> images;
 
+    @JsonProperty("like_count")
+    private Long likeCount;
+
+    @JsonProperty("cmt_count")
+    private Long commentCount;
+
 }

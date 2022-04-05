@@ -3,6 +3,7 @@ package com.viuniteam.socialviuni.service;
 import com.viuniteam.socialviuni.dto.request.comment.CommentSaveRequest;
 import com.viuniteam.socialviuni.dto.request.comment.CommentUpdateRequest;
 import com.viuniteam.socialviuni.dto.response.comment.CommentResponse;
+import com.viuniteam.socialviuni.entity.Post;
 import org.springframework.http.ResponseEntity;
 
 import java.util.List;

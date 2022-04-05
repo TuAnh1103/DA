@@ -21,7 +21,7 @@ public class UserAuthorResponseUtils implements ResponseUtils<User,UserAuthorRes
     public UserAuthorResponse convert(User author){
         UserAuthorResponse userAuthorResponse = userAuthorResponseMapper.from(author);
         userAuthorResponse.setAvatar(imageReponseMapper.from(ListUtils.getLast(author.getAvatarImage())));
-        userAuthorResponse.setCover(imageReponseMapper.from(ListUtils.getLast(author.getCoverImage())));
+//        userAuthorResponse.setCover(imageReponseMapper.from(ListUtils.getLast(author.getCoverImage())));
         return userAuthorResponse;
     }
 

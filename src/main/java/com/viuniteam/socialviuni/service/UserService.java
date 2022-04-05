@@ -9,11 +9,9 @@ import com.viuniteam.socialviuni.entity.Address;
 import com.viuniteam.socialviuni.entity.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetailsService;
 
 import java.util.List;
-import java.util.Optional;
 
 public interface UserService extends UserDetailsService {
     void save(UserSaveRequest userSaveRequest);
@@ -23,7 +21,7 @@ public interface UserService extends UserDetailsService {
     Page<UserInfoResponse> findAll(Pageable pageable);
     User findOneById(Long id);
     User findByUsername(String username);
-    Optional<User> findByEmail(String email);
+    User findByEmail(String email);
     void update(User user);
 
     List<User> findByHomeTown(Address address);
@@ -33,4 +31,8 @@ public interface UserService extends UserDetailsService {
     void updateInfo(UserUpdateInfoRequest userUpdateInfoRequest);
 
     boolean isAdmin(Profile profile);
+
+    Boolean existsByEmail(String email);
+
+    Boolean existsByUsername(String username);
 }
