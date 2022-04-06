@@ -4,7 +4,10 @@ import com.viuniteam.socialviuni.dto.request.comment.CommentSaveRequest;
 import com.viuniteam.socialviuni.dto.request.comment.CommentUpdateRequest;
 import com.viuniteam.socialviuni.dto.response.comment.CommentResponse;
 import com.viuniteam.socialviuni.service.CommentService;
+import com.viuniteam.socialviuni.utils.PageInfo;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,18 +24,19 @@ public class CommentController {
         return commentService.save(commentSaveRequest,postId);
     }
 
-    @PutMapping("/{postId}")
-    public CommentResponse updateComment(@RequestBody CommentUpdateRequest commentUpdateRequest, @PathVariable("postId") Long postId){
-        return commentService.update(commentUpdateRequest,postId);
+    @PutMapping
+    public CommentResponse updateComment(@RequestBody CommentUpdateRequest commentUpdateRequest){
+        return commentService.update(commentUpdateRequest);
     }
 
-    @DeleteMapping("/{postId}/{commentId}")
-    public void deleteComment(@PathVariable("postId") Long postId,@PathVariable("commentId") Long commentId){
-        commentService.delete(postId,commentId);
+    @DeleteMapping("/{commentId}")
+    public void deleteComment(@PathVariable("commentId") Long commentId){
+        commentService.delete(commentId);
     }
 
-    @GetMapping("/getall/{postId}")
-    public List<CommentResponse> getAll(@PathVariable("postId") Long postId){
-        return commentService.findAllByPost(postId);
+    @GetMapping("/all/{postId}")
+    public Page<CommentResponse> getAll(@PathVariable("postId") Long postId, @RequestBody PageInfo pageInfo){
+        PageRequest pageRequest = PageRequest.of(pageInfo.getIndex(), pageInfo.getSize());
+        return commentService.findAllByPost(postId,pageRequest);
     }
 }

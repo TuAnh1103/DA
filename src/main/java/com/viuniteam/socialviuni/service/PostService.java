@@ -15,7 +15,6 @@ public interface PostService {
     PostResponse save(PostSaveRequest postSaveRequest);
     PostResponse update(Long id,PostSaveRequest postSaveRequest);
     void delete(Long id);
-    List<PostResponse> listPost(Long userId);
     Page<PostResponse> listPost(Long userId, Pageable pageable);
     PostResponse findOneById(Long id);
     void autoCreatePost(String content, List<Image> images);

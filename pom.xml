@@ -129,6 +129,13 @@
             <artifactId>jsoup</artifactId>
             <version>1.14.3</version>
         </dependency>
+<!--        &lt;!&ndash; https://mvnrepository.com/artifact/org.postgresql/postgresql &ndash;&gt;-->
+<!--        <dependency>-->
+<!--            <groupId>org.postgresql</groupId>-->
+<!--            <artifactId>postgresql</artifactId>-->
+<!--            <scope>runtime</scope>-->
+<!--        </dependency>-->
+
 
     </dependencies>
 

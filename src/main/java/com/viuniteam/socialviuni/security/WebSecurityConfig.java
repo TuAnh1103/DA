@@ -2,6 +2,7 @@ package com.viuniteam.socialviuni.security;
 
 import com.viuniteam.socialviuni.dto.Profile;
 import com.viuniteam.socialviuni.entity.User;
+import com.viuniteam.socialviuni.enumtype.RoleType;
 import com.viuniteam.socialviuni.service.impl.UserServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.apache.catalina.filters.RemoteIpFilter;
@@ -76,13 +77,14 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 // disable cors
                 .cors().and()
                 // dont authenticate this particular request
-                .authorizeRequests().antMatchers(listUrlPermitAll).permitAll().
-                antMatchers("/admin/*").hasAuthority("ROLE_ADMIN"). // kiem tra role admin phan quyen
+                .authorizeRequests()
+                .antMatchers(listUrlPermitAll).permitAll()
+                .antMatchers("/admin/**").hasAuthority(RoleType.ROLE_USER.getName()) // kiem tra role admin phan quyen
                 // all other requests need to be authenticated
-                anyRequest().authenticated().and().
+                .anyRequest().authenticated().and()
                 // make sure we use stateless session; session won't be used to
                 // store user's state.
-                exceptionHandling().authenticationEntryPoint(jwtAuthenticationEntryPoint).and().sessionManagement()
+                .exceptionHandling().authenticationEntryPoint(jwtAuthenticationEntryPoint).and().sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
         // Add a filter to validate the tokens with every request
         httpSecurity.addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class);

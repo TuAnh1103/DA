@@ -9,6 +9,7 @@ import com.viuniteam.socialviuni.utils.PageInfo;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -43,19 +44,15 @@ public class PostController {
     }
 
     @GetMapping("/all/{userId}")
-    public List<PostResponse> getAll(@PathVariable("userId") Long userId){
-        return postService.listPost(userId);
-    }
-    @GetMapping("/getall/{userId}")
     public Page<PostResponse> getAllPage(@PathVariable("userId") Long userId, @RequestBody PageInfo pageInfo){
         PageRequest pageRequest = PageRequest.of(pageInfo.getIndex(), pageInfo.getSize());
-        Page<PostResponse> postResponsePage = postService.listPost(userId,pageRequest);
-        return postResponsePage;
+        return postService.listPost(userId,pageRequest);
     }
 
     @GetMapping("/all/me")
-    public List<PostResponse> getAll(){
-        return postService.listPost(profile.getId());
+    public Page<PostResponse> getAll(@RequestBody PageInfo pageInfo){
+        PageRequest pageRequest = PageRequest.of(pageInfo.getIndex(), pageInfo.getSize());
+        return postService.listPost(profile.getId(),pageRequest);
     }
 
 }

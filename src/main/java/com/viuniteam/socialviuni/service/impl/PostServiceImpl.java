@@ -19,6 +19,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 @Service
@@ -78,35 +80,16 @@ public class PostServiceImpl implements PostService {
 
 
     @Override
-    public List<PostResponse> listPost(Long userId) {
-        User user = userService.findOneById(userId);
-        if(user==null) throw new ObjectNotFoundException("Tài khoản không tồn tại");
-        List<PostResponse> postResponseList = new ArrayList<>();
-        if(user.isActive() || (!user.isActive() && userService.isAdmin(profile))){ // tai khoan hoat dong, neu k hoat dong thi chi admin moi dc xem
-            List<Post> listPost = postRepository.findByAuthor(user);
-            listPost.forEach(post -> {
-                if(checkPrivicy(post,profile)){
-                    PostResponse postResponse = postResponseUtils.convert(post);
-                    postResponseList.add(postResponse);
-                }
-            });
-        }
-        return postResponseList;
-    }
-
-    @Override
     public Page<PostResponse> listPost(Long userId, Pageable pageable) {
         User user = userService.findOneById(userId);
         if(user==null) throw new ObjectNotFoundException("Tài khoản không tồn tại");
-
-        List<PostResponse> postResponseList = new ArrayList<>();
         if(user.isActive() || (!user.isActive() && userService.isAdmin(profile))){ // tai khoan hoat dong, neu k hoat dong thi chi admin moi dc xem
-            Page<Post> posts = postRepository.findAllByAuthor(user,pageable);
+            Page<Post> posts = postRepository.findAllByAuthorOrderByIdDesc(user,pageable);
+            List<PostResponse> postResponseList = new ArrayList<>();
             posts.stream().forEach(post -> {
                 if(checkPrivicy(post,profile)){
                     PostResponse postResponse = postResponseUtils.convert(post);
                     postResponseList.add(postResponse);
-
                 }
             });
             return new PageImpl<>(postResponseList, pageable, postResponseList.size());

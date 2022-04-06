@@ -35,13 +35,6 @@ public class UserController {
         return userService.findById(profile.getId());
     }
 
-    @GetMapping("/all")
-    public Page<UserInfoResponse> findAll(@RequestBody PageInfo pageInfo){
-        PageRequest pageRequest = PageRequest.of(pageInfo.getIndex(), pageInfo.getSize());
-        Page<UserInfoResponse> userInfoResponsePage = userService.findAll(pageRequest);
-        return userInfoResponsePage;
-    }
-
     @PutMapping("/update")
     public void updateInfo(@Valid @RequestBody UserUpdateInfoRequest userUpdateInfoRequest){
         userService.updateInfo(userUpdateInfoRequest);

@@ -10,6 +10,7 @@ import com.viuniteam.socialviuni.entity.Address;
 import com.viuniteam.socialviuni.entity.Image;
 import com.viuniteam.socialviuni.entity.Role;
 import com.viuniteam.socialviuni.entity.User;
+import com.viuniteam.socialviuni.enumtype.RoleType;
 import com.viuniteam.socialviuni.enumtype.SendCodeType;
 import com.viuniteam.socialviuni.exception.BadRequestException;
 import com.viuniteam.socialviuni.exception.JsonException;
@@ -71,38 +72,36 @@ public class UserServiceImpl implements UserService {
     @Override
     public void save(UserSaveRequest userSaveRequest) {
         User user = userRequestMapper.to(userSaveRequest);
+        // check thong tin dag ki da ton tai chua
+        validateInfo(user);
+
         user.setActive(true);
-        List<Long> roleIds = Arrays.asList(roleRepository.findOneByName("ROLE_USER").getId());
+        List<Long> roleIds = Arrays.asList(roleRepository.findOneByName(RoleType.ROLE_USER.getName()).getId());
         List<Role> roles = roleRepository.findAllByIdIn(roleIds);
         user.setRoles(roles);
 
-        if(existsByUsername(user.getUsername()))
-            throw new BadRequestException("Username đã tồn tại");
-
-        if(existsByEmail(user.getEmail()))
-            throw new BadRequestException("Email đã tồn tại");
-
-        if(LocalDateTime.now().getYear() - user.getDob().getYear() < 12){
-            throw new BadRequestException("Độ tuổi không đủ điều kiện tham gia");
-        }
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         userRepository.save(user);
         throw new OKException("Đăng ký tài khoản thành công");
     }
 
-    @Override
-    public void register(UserSaveRequest userSaveRequest) {
-        User user = userRequestMapper.to(userSaveRequest);
-
+    public void validateInfo(User user){
         if(existsByUsername(user.getUsername()))
             throw new BadRequestException("Username đã tồn tại");
 
         if(existsByEmail(user.getEmail()))
-            throw new BadRequestException("Email đã tồn tại");
+            throw new BadRequestException("Email đã tồn tạii");
 
         if(LocalDateTime.now().getYear() - user.getDob().getYear() < 12){
             throw new BadRequestException("Độ tuổi không đủ điều kiện tham gia");
         }
+    }
+
+    @Override
+    public void register(UserSaveRequest userSaveRequest) {
+        User user = userRequestMapper.to(userSaveRequest);
+        // check thong tin dag ki da ton tai chua
+        validateInfo(user);
 
         if(userSaveRequest.getCode() != null){ // gửi kèm code
             if(mailService.hasCode(userSaveRequest.getEmail(),userSaveRequest.getCode())){
