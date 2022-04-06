@@ -3,26 +3,19 @@ package com.viuniteam.socialviuni.service.impl;
 import com.viuniteam.socialviuni.dto.Profile;
 import com.viuniteam.socialviuni.dto.request.share.ShareSaveRequest;
 import com.viuniteam.socialviuni.dto.response.share.ShareResponse;
-import com.viuniteam.socialviuni.dto.utils.ResponseUtils;
 import com.viuniteam.socialviuni.dto.utils.share.ShareResponseUtils;
-import com.viuniteam.socialviuni.dto.utils.user.UserAuthorResponseUtils;
-import com.viuniteam.socialviuni.entity.Like;
 import com.viuniteam.socialviuni.entity.Post;
 import com.viuniteam.socialviuni.entity.Share;
 import com.viuniteam.socialviuni.entity.User;
 import com.viuniteam.socialviuni.exception.BadRequestException;
-import com.viuniteam.socialviuni.exception.JsonException;
 import com.viuniteam.socialviuni.exception.OKException;
 import com.viuniteam.socialviuni.exception.ObjectNotFoundException;
-import com.viuniteam.socialviuni.mapper.response.share.ShareResponseMapper;
 import com.viuniteam.socialviuni.repository.PostRepository;
 import com.viuniteam.socialviuni.repository.ShareRepository;
 import com.viuniteam.socialviuni.service.PostService;
 import com.viuniteam.socialviuni.service.ShareService;
 import com.viuniteam.socialviuni.service.UserService;
 import lombok.AllArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 @Service

@@ -2,7 +2,6 @@ package com.viuniteam.socialviuni.service.impl;
 
 import com.viuniteam.socialviuni.dto.Profile;
 import com.viuniteam.socialviuni.dto.response.bookmark.BookmarkResponse;
-import com.viuniteam.socialviuni.dto.response.post.PostResponse;
 import com.viuniteam.socialviuni.dto.utils.post.PostResponseUtils;
 import com.viuniteam.socialviuni.entity.Bookmark;
 import com.viuniteam.socialviuni.entity.Post;

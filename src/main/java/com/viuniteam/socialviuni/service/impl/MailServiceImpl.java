@@ -3,18 +3,12 @@ package com.viuniteam.socialviuni.service.impl;
 import com.viuniteam.socialviuni.entity.Mail;
 import com.viuniteam.socialviuni.enumtype.SendCodeType;
 import com.viuniteam.socialviuni.exception.BadRequestException;
-import com.viuniteam.socialviuni.exception.JsonException;
 import com.viuniteam.socialviuni.exception.OKException;
 import com.viuniteam.socialviuni.repository.MailRepository;
 import com.viuniteam.socialviuni.service.MailService;
 import lombok.AllArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;

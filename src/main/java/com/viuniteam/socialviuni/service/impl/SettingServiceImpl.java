@@ -6,20 +6,16 @@ import com.viuniteam.socialviuni.dto.request.user.UserChangePasswordRequest;
 import com.viuniteam.socialviuni.entity.User;
 import com.viuniteam.socialviuni.enumtype.SendCodeType;
 import com.viuniteam.socialviuni.exception.BadRequestException;
-import com.viuniteam.socialviuni.exception.JsonException;
 import com.viuniteam.socialviuni.exception.OKException;
 import com.viuniteam.socialviuni.service.MailService;
 import com.viuniteam.socialviuni.service.SettingService;
 import com.viuniteam.socialviuni.service.UserService;
 import lombok.AllArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.Optional;
 
 @Service
 @AllArgsConstructor

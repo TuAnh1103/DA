@@ -4,7 +4,6 @@ import com.viuniteam.socialviuni.dto.response.friend.FriendResponse;
 import com.viuniteam.socialviuni.entity.Friend;
 import com.viuniteam.socialviuni.entity.User;
 import com.viuniteam.socialviuni.exception.BadRequestException;
-import com.viuniteam.socialviuni.exception.JsonException;
 import com.viuniteam.socialviuni.exception.OKException;
 import com.viuniteam.socialviuni.exception.ObjectNotFoundException;
 import com.viuniteam.socialviuni.mapper.response.friend.FriendResponseMapper;
@@ -13,8 +12,6 @@ import com.viuniteam.socialviuni.repository.FriendRepository;
 import com.viuniteam.socialviuni.service.FriendService;
 import com.viuniteam.socialviuni.service.UserService;
 import lombok.AllArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;

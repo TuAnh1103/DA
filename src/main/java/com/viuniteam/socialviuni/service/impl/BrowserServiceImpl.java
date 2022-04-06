@@ -1,10 +1,8 @@
 package com.viuniteam.socialviuni.service.impl;
 
-import com.viuniteam.socialviuni.dto.Profile;
 import com.viuniteam.socialviuni.dto.request.browser.BrowserSaveRequest;
 import com.viuniteam.socialviuni.dto.response.browser.BrowserResponse;
 import com.viuniteam.socialviuni.entity.Browser;
-import com.viuniteam.socialviuni.entity.User;
 import com.viuniteam.socialviuni.exception.OKException;
 import com.viuniteam.socialviuni.mapper.request.browser.BrowserRequestMapper;
 import com.viuniteam.socialviuni.mapper.response.browser.BrowserResponseMapper;

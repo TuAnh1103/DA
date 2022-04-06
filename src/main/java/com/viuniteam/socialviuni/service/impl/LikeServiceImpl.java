@@ -9,13 +9,10 @@ import com.viuniteam.socialviuni.exception.ObjectNotFoundException;
 import com.viuniteam.socialviuni.repository.LikeRepository;
 import com.viuniteam.socialviuni.repository.PostRepository;
 import com.viuniteam.socialviuni.service.LikeService;
-import com.viuniteam.socialviuni.service.PostService;
 import com.viuniteam.socialviuni.service.UserService;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 @Service
 @AllArgsConstructor
