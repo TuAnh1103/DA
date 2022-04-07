@@ -1,5 +1,6 @@
 package com.viuniteam.socialviuni.service.impl;
 
+import com.viuniteam.socialviuni.annotation.HandlingOffensive;
 import com.viuniteam.socialviuni.dto.Profile;
 import com.viuniteam.socialviuni.dto.request.share.ShareSaveRequest;
 import com.viuniteam.socialviuni.dto.response.share.ShareResponse;
@@ -25,10 +26,12 @@ public class ShareServiceImpl implements ShareService {
     private final PostRepository postRepository;
     private final UserService userService;
     private final Profile profile;
-    private final PostService postService;
     private final ShareResponseUtils shareResponseUtils;
+    private final HandlingOffensive handlingOffensive;
     @Override
     public ShareResponse share(ShareSaveRequest shareSaveRequest, Long postId) {
+        //check noi dung tho tuc bai viet share
+        handlingOffensive.handling(shareSaveRequest);
         Post post = postRepository.findOneById(postId);
         if(post==null) throw new ObjectNotFoundException("Bài viết không tồn tại");
         User user = userService.findOneById(profile.getId());

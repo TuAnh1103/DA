@@ -1,5 +1,6 @@
 package com.viuniteam.socialviuni.service.impl;
 
+import com.viuniteam.socialviuni.annotation.HandlingOffensive;
 import com.viuniteam.socialviuni.dto.Profile;
 import com.viuniteam.socialviuni.dto.request.comment.CommentSaveRequest;
 import com.viuniteam.socialviuni.dto.request.comment.CommentUpdateRequest;
@@ -38,12 +39,12 @@ public class CommentServiceImpl implements CommentService {
     private final ImageService imageService;
     private final UserService userService;
     private final Profile profile;
-    private final OffensiveKeywordService offensiveKeywordService;
     private final CommentResponseUltils commentResponseUltils;
+    private final HandlingOffensive handlingOffensive;
     @Override
     public CommentResponse save(CommentSaveRequest commentSaveRequest, Long postId) {
-        if(offensiveKeywordService.isExist(commentSaveRequest.getContent()))
-            throw new BadRequestException("Comment không được chứa từ ngữ thô tục");
+        //check noi dung comment tu ngu tho tuc
+        handlingOffensive.handling(commentSaveRequest);
         Comment comment = commentRequestMapper.to(commentSaveRequest);
         comment.setUser(userService.findOneById(profile.getId()));
         comment.setImages(ListUtils.oneToList(imageService.findOneById(commentSaveRequest.getImageId())));
@@ -77,8 +78,8 @@ public class CommentServiceImpl implements CommentService {
         if(!oldComment.getPost().getAuthor().isActive() && !userService.isAdmin(profile))
             throw new ObjectNotFoundException("Bài viết không tồn tại");
 
-        if(offensiveKeywordService.isExist(commentUpdateRequest.getContent()))
-            throw new BadRequestException("Comment không được chứa từ ngữ thô tục");
+        //check noi dung comment tu ngu tho tuc
+        handlingOffensive.handling(commentUpdateRequest);
 
         Comment newComment = commentUpdateRequestMapper.to(commentUpdateRequest);
         newComment.setImages(ListUtils.oneToList(imageService.findOneById(commentUpdateRequest.getImageId())));

@@ -1,5 +1,6 @@
 package com.viuniteam.socialviuni.service.impl;
 
+import com.viuniteam.socialviuni.annotation.HandlingOffensive;
 import com.viuniteam.socialviuni.dto.Profile;
 import com.viuniteam.socialviuni.dto.request.user.UserRecoveryPasswordRequest;
 import com.viuniteam.socialviuni.dto.request.user.UserSaveRequest;
@@ -61,9 +62,13 @@ public class UserServiceImpl implements UserService {
     private PostService postService;
     @Autowired
     private UserInfoResponseUtils userInfoResponseUtils;
+    @Autowired
+    private HandlingOffensive handlingOffensive;
     @Override
     public void save(UserSaveRequest userSaveRequest) {
         User user = userRequestMapper.to(userSaveRequest);
+        // check thong tin co chua noi dung tho tuc hay khong
+        handlingOffensive.handling(userSaveRequest);
         // check thong tin dag ki da ton tai chua
         validateInfo(user);
 
@@ -82,7 +87,7 @@ public class UserServiceImpl implements UserService {
             throw new BadRequestException("Username đã tồn tại");
 
         if(existsByEmail(user.getEmail()))
-            throw new BadRequestException("Email đã tồn tạii");
+            throw new BadRequestException("Email đã tồn tại");
 
         if(LocalDateTime.now().getYear() - user.getDob().getYear() < 12){
             throw new BadRequestException("Độ tuổi không đủ điều kiện tham gia");
@@ -92,6 +97,8 @@ public class UserServiceImpl implements UserService {
     @Override
     public void register(UserSaveRequest userSaveRequest) {
         User user = userRequestMapper.to(userSaveRequest);
+        // check thong tin co chua noi dung tho tuc hay khong
+        handlingOffensive.handling(userSaveRequest);
         // check thong tin dag ki da ton tai chua
         validateInfo(user);
 

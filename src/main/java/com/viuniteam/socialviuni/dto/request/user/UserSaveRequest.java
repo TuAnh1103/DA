@@ -1,5 +1,6 @@
 package com.viuniteam.socialviuni.dto.request.user;
 
+import com.viuniteam.socialviuni.annotation.ValidOffensive;
 import lombok.Data;
 import org.hibernate.validator.constraints.Length;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -14,6 +15,7 @@ public class UserSaveRequest {
     @NotBlank(message = "Tên người dùng không được để trống")
     @Length(min = 5, max = 15, message = "Tên người dùng phải có độ dài từ 5 đến 15")
     @Pattern(regexp = "^[a-zA-Z0-9._-]{3,}$", message = "Tên người dùng không được chứa kí tự cấm")
+    @ValidOffensive(name = "Tên người dùng")
     private String username;
 
     @NotEmpty(message = "Mật khẩu không được để trống")
@@ -34,12 +36,14 @@ public class UserSaveRequest {
     @NotBlank(message = "Họ tên đệm không được để trống")
     @Length(min = 1, max = 25, message = "Họ tên đệm phải có độ dài từ 1 đến 25")
     @Pattern(regexp = "^[a-zA-Z ẮẰẲẴẶĂẤẦẨẪẬÂÁÀÃẢẠĐẾỀỂỄỆÊÉÈẺẼẸÍÌỈĨỊỐỒỔỖỘÔỚỜỞỠỢƠÓÒÕỎỌỨỪỬỮỰƯÚÙỦŨỤÝỲỶỸỴắằẳẵặăấầẩẫậâáàãảạđếềểễệêéèẻẽẹíìỉĩịốồổỗộôớờởỡợơóòõỏọứừửữựưúùủũụýỳỷỹỵ]+$", message = "Họ tên đệm không được chứa kí tự cấm")
+    @ValidOffensive(name = "Họ tên đệm")
     private String lastName;
 
     @NotEmpty(message = "Tên không được để trống")
     @NotBlank(message = "Tên không được để trống")
     @Length(min = 1, max = 15, message = "Tên phải có độ dài từ 1 đến 15")
     @Pattern(regexp = "^[a-zA-Z ẮẰẲẴẶĂẤẦẨẪẬÂÁÀÃẢẠĐẾỀỂỄỆÊÉÈẺẼẸÍÌỈĨỊỐỒỔỖỘÔỚỜỞỠỢƠÓÒÕỎỌỨỪỬỮỰƯÚÙỦŨỤÝỲỶỸỴắằẳẵặăấầẩẫậâáàãảạđếềểễệêéèẻẽẹíìỉĩịốồổỗộôớờởỡợơóòõỏọứừửữựưúùủũụýỳỷỹỵ]+$", message = "Tên không được chứa kí tự cấm")
+    @ValidOffensive(name = "Tên")
     private String firstName;
 
     @DateTimeFormat(pattern="yyyyMMdd")
