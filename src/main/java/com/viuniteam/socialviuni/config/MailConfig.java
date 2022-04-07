@@ -10,7 +10,7 @@ import java.util.Properties;
 import java.util.Random;
 
 @Configuration
-public class ConfigMail {
+public class MailConfig {
     @Value("${email.username}")
     private String emailUsername;
     @Value("${email.password}")
