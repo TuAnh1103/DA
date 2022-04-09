@@ -85,7 +85,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
                 /*
                 set username and id into bean
                  */
-                User user = userService.findByUsername(username);
+                User user = userService.findOneByUsername(username);
                 profile.setId(user.getId());
                 profile.setUsername(user.getUsername());
                 profile.setFirstName(user.getFirstName());

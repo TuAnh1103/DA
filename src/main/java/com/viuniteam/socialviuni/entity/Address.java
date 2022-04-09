@@ -19,6 +19,7 @@ public class Address {
     @Column(columnDefinition = "nvarchar(100)")
     private String name;
 
+
     @OneToOne(mappedBy = "homeTown")
     private User userHomeTown;
 

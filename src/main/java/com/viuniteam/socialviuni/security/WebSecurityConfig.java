@@ -79,7 +79,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 // dont authenticate this particular request
                 .authorizeRequests()
                 .antMatchers(listUrlPermitAll).permitAll()
-                .antMatchers("/admin/**").hasAuthority(RoleType.ROLE_USER.getName()) // kiem tra role admin phan quyen
+                .antMatchers("/admin/**").hasAuthority(RoleType.ROLE_ADMIN.getName()) // kiem tra role admin phan quyen
                 // all other requests need to be authenticated
                 .anyRequest().authenticated().and()
                 // make sure we use stateless session; session won't be used to

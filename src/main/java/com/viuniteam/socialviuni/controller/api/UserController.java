@@ -35,6 +35,11 @@ public class UserController {
         return userService.findById(profile.getId());
     }
 
+    @GetMapping("/username/{username}")
+    public UserInfoResponse findByUsername(@PathVariable("username") String username){
+        return userService.findByUsername(username);
+    }
+
     @PutMapping("/update")
     public void updateInfo(@Valid @RequestBody UserUpdateInfoRequest userUpdateInfoRequest){
         userService.updateInfo(userUpdateInfoRequest);

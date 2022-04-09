@@ -18,9 +18,10 @@ public interface UserService extends UserDetailsService {
     void register(UserSaveRequest userSaveRequest);
     void recoveryPassword(UserRecoveryPasswordRequest userRecoveryPasswordRequest);
     UserInfoResponse findById(Long id);
+    UserInfoResponse findByUsername(String username);
     Page<UserInfoResponse> findAll(Pageable pageable);
     User findOneById(Long id);
-    User findByUsername(String username);
+    User findOneByUsername(String username);
     User findByEmail(String email);
     void update(User user);
 

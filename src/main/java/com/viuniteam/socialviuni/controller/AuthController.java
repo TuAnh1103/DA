@@ -48,7 +48,7 @@ public class AuthController {
             BrowserSaveRequest browserSaveRequest = BrowserSaveRequest.builder()
                     .ip(httpServletRequest.getRemoteAddr())
                     .browser(httpServletRequest.getHeader("User-Agent"))
-                    .user(userService.findByUsername(username))
+                    .user(userService.findOneByUsername(username))
                     .build();
             browserService.save(browserSaveRequest);
         }
@@ -66,7 +66,7 @@ public class AuthController {
             username = user.getUsername();
         }
         else {
-            User user = userService.findByUsername(username);
+            User user = userService.findOneByUsername(username);
             if(user==null) throw new ObjectNotFoundException("Tên tài khoản không tồn tại");
         }
         try {

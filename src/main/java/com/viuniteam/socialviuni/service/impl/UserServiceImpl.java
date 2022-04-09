@@ -114,7 +114,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void recoveryPassword(UserRecoveryPasswordRequest userRecoveryPasswordRequest) {
-        User user = findByUsername(userRecoveryPasswordRequest.getUsername());
+        User user = findOneByUsername(userRecoveryPasswordRequest.getUsername());
         if(user==null) throw new ObjectNotFoundException("Tên tài khoản không tồn tại");
         String email = user.getEmail();
         String code = userRecoveryPasswordRequest.getCode();
@@ -142,6 +142,14 @@ public class UserServiceImpl implements UserService {
         User user = users.get();
         return userInfoResponseUtils.convert(user);
     }
+    @Override
+    public UserInfoResponse findByUsername(String username) {
+        Optional<User> users= userRepository.findByUsername(username);
+        users.orElseThrow(()-> new ObjectNotFoundException("Tài khoản không tồn tại"));
+        User user = users.get();
+        return userInfoResponseUtils.convert(user);
+    }
+
 
     @Override
     public Page<UserInfoResponse> findAll(Pageable pageable) {
@@ -168,7 +176,7 @@ public class UserServiceImpl implements UserService {
 
 
     @Override
-    public User findByUsername(String username) {
+    public User findOneByUsername(String username) {
         return userRepository.findOneByUsername(username);
     }
 
@@ -283,7 +291,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        User user = findByUsername(username);
+        User user = findOneByUsername(username);
         if (user == null) {
             throw new UsernameNotFoundException("User not found with username: " + username);
         }

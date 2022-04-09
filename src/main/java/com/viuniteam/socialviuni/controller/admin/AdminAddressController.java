@@ -11,29 +11,28 @@ import javax.validation.Valid;
 import java.util.List;
 
 @RestController
-@RequestMapping("/admin/address/")
+@RequestMapping("/admin/address")
 @AllArgsConstructor
 public class AdminAddressController {
     private final AddressService addressService;
-    @PostMapping("/add")
+    @PostMapping
     public void addAddress(@Valid @RequestBody AddressSaveRequest addressSaveRequest){
         addressService.save(addressSaveRequest);
     }
-
-    @PostMapping("addlist")
+    @PostMapping("/addlist")
     public void addListAddress(@Valid @RequestBody List<AddressSaveRequest> addressSaveRequestList){
         addressService.saveList(addressSaveRequestList);
     }
-    @PostMapping("/delete/{id}")
+    @DeleteMapping("/{id}")
     public void deleteAddress(@PathVariable("id") Long id){
         addressService.deleteById(id);
     }
 
-    @GetMapping("/get/{id}")
+    @GetMapping("/{id}")
     public AddressResponse getById(@PathVariable("id") Long id){
         return addressService.findOneById(id);
     }
-    @GetMapping("/get/name")
+    @GetMapping("/name")
     public AddressResponse getByName(@RequestBody Keyword keyword){
         return addressService.findOneByName(keyword.getKeyword());
     }
@@ -43,7 +42,7 @@ public class AdminAddressController {
         return addressService.findAll();
     }
 
-    @PutMapping("/update/{id}")
+    @PutMapping("/{id}")
     public void updateAddress(@PathVariable("id") Long  id,@RequestBody AddressSaveRequest addressSaveRequest){
         addressService.update(id,addressSaveRequest);
     }
