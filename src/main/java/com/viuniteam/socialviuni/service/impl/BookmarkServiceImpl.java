@@ -5,7 +5,6 @@ import com.viuniteam.socialviuni.dto.response.bookmark.BookmarkResponse;
 import com.viuniteam.socialviuni.dto.utils.post.PostResponseUtils;
 import com.viuniteam.socialviuni.entity.Bookmark;
 import com.viuniteam.socialviuni.entity.Post;
-import com.viuniteam.socialviuni.enumtype.PrivicyPostType;
 import com.viuniteam.socialviuni.exception.BadRequestException;
 import com.viuniteam.socialviuni.exception.OKException;
 import com.viuniteam.socialviuni.exception.ObjectNotFoundException;
@@ -13,9 +12,12 @@ import com.viuniteam.socialviuni.mapper.response.bookmark.BookmarkResponseMapper
 import com.viuniteam.socialviuni.repository.BookmarkRepository;
 import com.viuniteam.socialviuni.repository.PostRepository;
 import com.viuniteam.socialviuni.service.BookmarkService;
-import com.viuniteam.socialviuni.service.FriendService;
+import com.viuniteam.socialviuni.service.PostService;
 import com.viuniteam.socialviuni.service.UserService;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -23,34 +25,23 @@ import java.util.List;
 
 @Service
 @AllArgsConstructor
-
 public class BookmarkServiceImpl implements BookmarkService {
 
     private final PostRepository postRepository;
+    private final PostService postService;
     private final BookmarkRepository bookmarkRepository;
     private final Profile profile;
     private final UserService userService;
     private final BookmarkResponseMapper bookmarkResponseMapper;
     private final PostResponseUtils postResponseUtils;
-    private final FriendService friendService;
     @Override
     public BookmarkResponse save(Long postId) {
         Post post = postRepository.findOneById(postId);
-        if(post==null || !post.getAuthor().isActive()) throw new ObjectNotFoundException("Bài viết không tồn tại");
-
-        if(post.getPrivicy() == PrivicyPostType.FRIEND.getCode()){ // quyen rieng tu ban be
-            if(friendService.isFriend(post.getAuthor().getId(),profile.getId()) || post.getAuthor().getId().equals(profile.getId()))
-                return convertToBookmarkResponse(post);
-
-            throw new BadRequestException("Không có quyền lưu");
-        }
-        else if(post.getPrivicy() == PrivicyPostType.ONLY_ME.getCode()){ // quyen rieng tu chi minh toi
-            if (post.getAuthor().getId() == profile.getId())
-                return convertToBookmarkResponse(post);
-
-            throw new BadRequestException("Không có quyền lưu");
-        }
-        else return convertToBookmarkResponse(post); // quyen rieng tu cong khai
+        if(post==null || !post.getAuthor().isActive())
+            throw new ObjectNotFoundException("Bài viết không tồn tại");
+        if(postService.checkPrivicy(post,profile))
+            return convertToBookmarkResponse(post);
+        throw new BadRequestException("Không có quyền lưu");
     }
 
     private BookmarkResponse convertToBookmarkResponse(Post post){
@@ -77,16 +68,17 @@ public class BookmarkServiceImpl implements BookmarkService {
     }
 
     @Override
-    public List<BookmarkResponse> findAll() {
-        List<Bookmark> bookmarks = bookmarkRepository.findAllByUser(userService.findOneById(profile.getId()));
+    public Page<BookmarkResponse> findAll(Pageable pageable) {
+        Page<Bookmark> bookmarks = bookmarkRepository.findAllByUserOrderByIdDesc(userService.findOneById(profile.getId()), pageable);
         List<BookmarkResponse> bookmarkResponses = new ArrayList<>();
         bookmarks.stream().forEach(bookmark -> {
-            if(bookmark.getPost().getAuthor().isActive()) {
+            if(bookmark.getPost().getAuthor().isActive()
+                    && postService.checkPrivicy(bookmark.getPost(),profile)) {
                 BookmarkResponse bookmarkResponse = bookmarkResponseMapper.from(bookmark);
                 bookmarkResponse.setPostResponse(postResponseUtils.convert(bookmark.getPost()));
                 bookmarkResponses.add(bookmarkResponse);
             }
         });
-        return bookmarkResponses;
+        return new PageImpl<>(bookmarkResponses,pageable,bookmarkResponses.size());
     }
 }

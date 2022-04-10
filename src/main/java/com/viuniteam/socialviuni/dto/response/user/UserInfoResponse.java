@@ -1,6 +1,7 @@
 package com.viuniteam.socialviuni.dto.response.user;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.viuniteam.socialviuni.dto.BaseDTO;
 import com.viuniteam.socialviuni.dto.response.address.AddressResponse;
 import com.viuniteam.socialviuni.dto.response.image.ImageResponse;
 import lombok.Data;
@@ -9,9 +10,7 @@ import java.time.LocalDate;
 import java.util.Date;
 
 @Data
-public class UserInfoResponse {
-
-    private Long id;
+public class UserInfoResponse extends BaseDTO {
 
     private String username;
 
@@ -33,8 +32,6 @@ public class UserInfoResponse {
 
     private String bio;
 
-    @JsonProperty("created_date")
-    private Date createdDate;
 
 
     @JsonProperty("avatar_image")

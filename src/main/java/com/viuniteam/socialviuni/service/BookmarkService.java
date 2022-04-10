@@ -1,12 +1,12 @@
 package com.viuniteam.socialviuni.service;
 
 import com.viuniteam.socialviuni.dto.response.bookmark.BookmarkResponse;
-import com.viuniteam.socialviuni.dto.response.post.PostResponse;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
-import java.util.List;
 
 public interface BookmarkService {
     BookmarkResponse save(Long postId);
     void remove(Long bookmarkId);
-    List<BookmarkResponse> findAll();
+    Page<BookmarkResponse> findAll(Pageable pageable);
 }

@@ -2,7 +2,10 @@ package com.viuniteam.socialviuni.controller.api;
 
 import com.viuniteam.socialviuni.dto.response.bookmark.BookmarkResponse;
 import com.viuniteam.socialviuni.service.BookmarkService;
+import com.viuniteam.socialviuni.utils.PageInfo;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -24,8 +27,9 @@ public class BookmarkController {
     }
 
     @GetMapping
-    public List<BookmarkResponse> findAll(){
-        return bookmarkService.findAll();
+    public Page<BookmarkResponse> findAll(@RequestBody PageInfo pageInfo){
+        PageRequest pageRequest = PageRequest.of(pageInfo.getIndex(), pageInfo.getSize());
+        return bookmarkService.findAll(pageRequest);
     }
 
 }
