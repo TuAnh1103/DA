@@ -1,6 +1,6 @@
 package com.viuniteam.socialviuni.service.impl;
 
-import com.viuniteam.socialviuni.annotation.HandlingOffensive;
+import com.viuniteam.socialviuni.annotation.offensivekeyword.HandlingOffensive;
 import com.viuniteam.socialviuni.dto.Profile;
 import com.viuniteam.socialviuni.dto.request.post.PostSaveRequest;
 import com.viuniteam.socialviuni.dto.response.post.PostResponse;
@@ -32,11 +32,12 @@ public class PostServiceImpl implements PostService {
     private final FriendService friendService;
     private final ImageService imageService;
     private final PostResponseUtils postResponseUtils;
-    private final HandlingOffensive handlingOffensive;
+//    private final HandlingOffensive handlingOffensive;
     @Override
     public PostResponse save(PostSaveRequest postSaveRequest) {
         //check noi dung tho tuc noi dung bai viet
-        handlingOffensive.handling(postSaveRequest);
+        //handlingOffensive.handling(postSaveRequest);
+
         Post post = postRequestMapper.to(postSaveRequest);
         post.setAuthor(userService.findOneById(profile.getId()));
 
@@ -49,7 +50,7 @@ public class PostServiceImpl implements PostService {
     @Override
     public PostResponse update(Long id, PostSaveRequest postSaveRequest) {
         //check noi dung tho tuc noi dung bai viet
-        handlingOffensive.handling(postSaveRequest);
+        //handlingOffensive.handling(postSaveRequest);
 
         Post oldPost = postRepository.findOneById(id);
         if(oldPost == null)

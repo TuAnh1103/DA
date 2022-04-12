@@ -1,6 +1,6 @@
 package com.viuniteam.socialviuni.service.impl;
 
-import com.viuniteam.socialviuni.annotation.HandlingOffensive;
+import com.viuniteam.socialviuni.annotation.offensivekeyword.HandlingOffensive;
 import com.viuniteam.socialviuni.dto.Profile;
 import com.viuniteam.socialviuni.dto.request.user.UserRecoveryPasswordRequest;
 import com.viuniteam.socialviuni.dto.request.user.UserSaveRequest;
@@ -62,13 +62,14 @@ public class UserServiceImpl implements UserService {
     private PostService postService;
     @Autowired
     private UserInfoResponseUtils userInfoResponseUtils;
-    @Autowired
-    private HandlingOffensive handlingOffensive;
+//    @Autowired
+//    private HandlingOffensive handlingOffensive;
     @Override
     public void save(UserSaveRequest userSaveRequest) {
         User user = userRequestMapper.to(userSaveRequest);
         // check thong tin co chua noi dung tho tuc hay khong
-        handlingOffensive.handling(userSaveRequest);
+        //handlingOffensive.handling(userSaveRequest);
+
         // check thong tin dag ki da ton tai chua
         validateInfo(user);
 
@@ -98,7 +99,8 @@ public class UserServiceImpl implements UserService {
     public void register(UserSaveRequest userSaveRequest) {
         User user = userRequestMapper.to(userSaveRequest);
         // check thong tin co chua noi dung tho tuc hay khong
-        handlingOffensive.handling(userSaveRequest);
+        //handlingOffensive.handling(userSaveRequest);
+
         // check thong tin dag ki da ton tai chua
         validateInfo(user);
 

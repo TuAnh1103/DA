@@ -1,4 +1,4 @@
-package com.viuniteam.socialviuni.annotation;
+package com.viuniteam.socialviuni.annotation.offensivekeyword;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

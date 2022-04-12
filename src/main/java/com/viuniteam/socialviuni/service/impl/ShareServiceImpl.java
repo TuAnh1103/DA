@@ -1,6 +1,6 @@
 package com.viuniteam.socialviuni.service.impl;
 
-import com.viuniteam.socialviuni.annotation.HandlingOffensive;
+import com.viuniteam.socialviuni.annotation.offensivekeyword.HandlingOffensive;
 import com.viuniteam.socialviuni.dto.Profile;
 import com.viuniteam.socialviuni.dto.request.share.ShareSaveRequest;
 import com.viuniteam.socialviuni.dto.response.share.ShareResponse;
@@ -13,7 +13,6 @@ import com.viuniteam.socialviuni.exception.OKException;
 import com.viuniteam.socialviuni.exception.ObjectNotFoundException;
 import com.viuniteam.socialviuni.repository.PostRepository;
 import com.viuniteam.socialviuni.repository.ShareRepository;
-import com.viuniteam.socialviuni.service.PostService;
 import com.viuniteam.socialviuni.service.ShareService;
 import com.viuniteam.socialviuni.service.UserService;
 import lombok.AllArgsConstructor;
@@ -27,11 +26,12 @@ public class ShareServiceImpl implements ShareService {
     private final UserService userService;
     private final Profile profile;
     private final ShareResponseUtils shareResponseUtils;
-    private final HandlingOffensive handlingOffensive;
+//    private final HandlingOffensive handlingOffensive;
     @Override
     public ShareResponse share(ShareSaveRequest shareSaveRequest, Long postId) {
         //check noi dung tho tuc bai viet share
-        handlingOffensive.handling(shareSaveRequest);
+        //handlingOffensive.handling(shareSaveRequest);
+
         Post post = postRepository.findOneById(postId);
         if(post==null) throw new ObjectNotFoundException("Bài viết không tồn tại");
         User user = userService.findOneById(profile.getId());

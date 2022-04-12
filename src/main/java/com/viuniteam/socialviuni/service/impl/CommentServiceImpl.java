@@ -1,6 +1,6 @@
 package com.viuniteam.socialviuni.service.impl;
 
-import com.viuniteam.socialviuni.annotation.HandlingOffensive;
+import com.viuniteam.socialviuni.annotation.offensivekeyword.HandlingOffensive;
 import com.viuniteam.socialviuni.dto.Profile;
 import com.viuniteam.socialviuni.dto.request.comment.CommentSaveRequest;
 import com.viuniteam.socialviuni.dto.request.comment.CommentUpdateRequest;
@@ -40,11 +40,12 @@ public class CommentServiceImpl implements CommentService {
     private final UserService userService;
     private final Profile profile;
     private final CommentResponseUltils commentResponseUltils;
-    private final HandlingOffensive handlingOffensive;
+//    private final HandlingOffensive handlingOffensive;
     @Override
     public CommentResponse save(CommentSaveRequest commentSaveRequest, Long postId) {
         //check noi dung comment tu ngu tho tuc
-        handlingOffensive.handling(commentSaveRequest);
+        //handlingOffensive.handling(commentSaveRequest);
+
         Comment comment = commentRequestMapper.to(commentSaveRequest);
         comment.setUser(userService.findOneById(profile.getId()));
         comment.setImages(ListUtils.oneToList(imageService.findOneById(commentSaveRequest.getImageId())));
@@ -79,7 +80,7 @@ public class CommentServiceImpl implements CommentService {
             throw new ObjectNotFoundException("Bài viết không tồn tại");
 
         //check noi dung comment tu ngu tho tuc
-        handlingOffensive.handling(commentUpdateRequest);
+        //handlingOffensive.handling(commentUpdateRequest);
 
         Comment newComment = commentUpdateRequestMapper.to(commentUpdateRequest);
         newComment.setImages(ListUtils.oneToList(imageService.findOneById(commentUpdateRequest.getImageId())));
