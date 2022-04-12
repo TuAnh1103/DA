@@ -68,7 +68,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         return new RemoteIpFilter();
     }
 
-    private static final String[] listUrlPermitAll= new String[]{"/auth/**","/home","/"};
+    private static final String[] listUrlPermitAll= new String[]{"/auth/**","/home","/","/upload"};
 
     @Override
     protected void configure(HttpSecurity httpSecurity) throws Exception {

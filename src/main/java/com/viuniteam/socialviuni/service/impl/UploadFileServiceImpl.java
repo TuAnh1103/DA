@@ -4,6 +4,7 @@ import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
 import com.viuniteam.socialviuni.dto.response.image.ImageResponse;
 import com.viuniteam.socialviuni.entity.Image;
+import com.viuniteam.socialviuni.exception.BadRequestException;
 import com.viuniteam.socialviuni.exception.JsonException;
 import com.viuniteam.socialviuni.mapper.response.image.ImageReponseMapper;
 import com.viuniteam.socialviuni.service.ImageService;
@@ -19,6 +20,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Callable;
 
 @Service
 @AllArgsConstructor
@@ -29,14 +31,14 @@ public class UploadFileServiceImpl implements UploadFileService {
     private final ImageReponseMapper imageReponseMapper;
     @Override
     public ResponseEntity<?> getLinkUploadListFile(MultipartFile[] files) {
-        if(files.length < 10){
+        if(files.length <= 10){
             List<ImageResponse> imageResponses = new ArrayList<>();
             for(MultipartFile file : files){// check format and size file
                 String formatFile = FilenameUtils.getExtension(file.getOriginalFilename()).toLowerCase();
-                if(!formatFile.equals("jpg") && !formatFile.equals("png"))
-                    return new ResponseEntity<>(new JsonException(400,"Định dạng file phải là JPG hoặc PNG"),HttpStatus.BAD_REQUEST);
+                if(!formatFile.equals("jpg") && !formatFile.equals("png") && !formatFile.equals("jpeg"))
+                    throw new BadRequestException("Định dạng file phải là JPG hoặc PNG");
                 if(file.getSize()>5242880)
-                    return new ResponseEntity<>(new JsonException(400,"Kích thước file không được vượt quá 5MB"),HttpStatus.BAD_REQUEST);
+                    throw new BadRequestException("Kích thước file không được vượt quá 5MB");
             }
             for(MultipartFile file : files){
                 ImageResponse imageResponse = getImageResponse(file);
@@ -45,7 +47,12 @@ public class UploadFileServiceImpl implements UploadFileService {
             }
             return ResponseEntity.ok(imageResponses);
         }
-        return new ResponseEntity<>(new JsonException(400,"Upload tối đa 10 ảnh"),HttpStatus.BAD_REQUEST);
+        throw new BadRequestException("Upload tối đa 10 ảnh");
+    }
+
+    @Override
+    public ImageResponse getLinkUploadFile(MultipartFile file) {
+        return getImageResponse(file);
     }
 
     public ImageResponse getImageResponse(MultipartFile file){
