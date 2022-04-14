@@ -6,6 +6,7 @@ import com.viuniteam.socialviuni.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import javax.transaction.Transactional;
+import java.util.List;
 
 @Transactional
 public interface LikeRepository extends JpaRepository<Like,Long> {
@@ -13,4 +14,5 @@ public interface LikeRepository extends JpaRepository<Like,Long> {
     Long countByPost(Post post);
     Like findOneByPostAndUser(Post post, User user);
     Boolean existsByPostAndUser(Post post,User user);
+    List<Like> findAllByPostOrderByCreatedDate(Post post);
 }

@@ -1,6 +1,7 @@
 package com.viuniteam.socialviuni.repository;
 
 import com.viuniteam.socialviuni.entity.Friend;
+import com.viuniteam.socialviuni.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
