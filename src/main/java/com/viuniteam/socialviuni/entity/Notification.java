@@ -1,5 +1,6 @@
 package com.viuniteam.socialviuni.entity;
 
+import com.viuniteam.socialviuni.enumtype.NotificationSeenType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -25,12 +26,15 @@ public class Notification{
     @UpdateTimestamp
     private Date createdDate;
 
+    @Column
     private String content;
+
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
 
-    private boolean status;
+    @Column
+    private NotificationSeenType status;
 
     @OneToOne(cascade = CascadeType.ALL)
     private NotificationPost notificationPost;

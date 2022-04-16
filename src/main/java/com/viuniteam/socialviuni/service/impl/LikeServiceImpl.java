@@ -6,6 +6,7 @@ import com.viuniteam.socialviuni.entity.NotificationPost;
 import com.viuniteam.socialviuni.entity.Post;
 import com.viuniteam.socialviuni.entity.User;
 import com.viuniteam.socialviuni.enumtype.NotificationPostType;
+import com.viuniteam.socialviuni.enumtype.NotificationSeenType;
 import com.viuniteam.socialviuni.exception.OKException;
 import com.viuniteam.socialviuni.exception.ObjectNotFoundException;
 import com.viuniteam.socialviuni.repository.LikeRepository;
@@ -15,12 +16,9 @@ import com.viuniteam.socialviuni.repository.PostRepository;
 import com.viuniteam.socialviuni.service.LikeService;
 import com.viuniteam.socialviuni.service.NotificationService;
 import com.viuniteam.socialviuni.service.UserService;
-import com.viuniteam.socialviuni.utils.ListUtils;
 import com.viuniteam.socialviuni.utils.ShortContent;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 
 @Service
@@ -41,13 +39,15 @@ public class LikeServiceImpl implements LikeService {
 
         // like
         if(!checkLiked(post,user)){
-            if(checkDisliked(post,user)){ // if dislike then like
+            if(checkDisliked(post,user)){ // if dislike then like again
                 Like like = likeRepository.findOneByPostAndUser(post,user);
                 like.setStatus(true);
                 likeRepository.save(like);
-                updateNotificationLike(post,true); // update notification like
+                createNotification(post,user,NotificationSeenType.SEEN);
                 throw new OKException("Đã like");
             }
+
+            // if not liked and disliked then create notification like
             Like like = Like.builder()
                     .post(post)
                     .user(user)
@@ -56,13 +56,7 @@ public class LikeServiceImpl implements LikeService {
             likeRepository.save(like);
 
             // create notification like
-            if(notificationRepository.findOneByNotificationPost( // check if not like then create new notification
-                    notificationPostRepository.findOneByPostAndNotificationPostType(post,NotificationPostType.LIKE)) ==null){
-                createNotificationLike(post,user);
-            }
-            else // if exist liked then update notification like by new user
-                updateNotificationLike(post,false);
-
+            createNotification(post,user,NotificationSeenType.NOT_SEEN);
             throw new OKException("Đã like");
         }
 
@@ -70,8 +64,7 @@ public class LikeServiceImpl implements LikeService {
         Like like = likeRepository.findOneByPostAndUser(post,user);
         like.setStatus(false);
         likeRepository.save(like);
-        updateNotificationLike(post,true); // update notification if dislike
-
+        createNotification(post,user,NotificationSeenType.SEEN);
         throw new OKException("Đã hủy like");
     }
 
@@ -86,7 +79,7 @@ public class LikeServiceImpl implements LikeService {
                 notificationPost);
     }
 
-    private void updateNotificationLike(Post post, boolean status){
+    private void updateNotificationLike(Post post, NotificationSeenType status){
         Long likeCount = likeRepository.countByPostAndStatus(post,true);
         if(likeCount > 0){
             User userNewLike = likeRepository.findTop1ByPostAndStatusOrderByCreatedDateDesc(post,true).getUser();
@@ -103,6 +96,14 @@ public class LikeServiceImpl implements LikeService {
             NotificationPost notificationPost = notificationPostRepository.findOneByPostAndNotificationPostType(post,NotificationPostType.LIKE);
             notificationService.updateNotification(content,notificationPost,status);
         }
+    }
+
+    private void createNotification(Post post, User user, NotificationSeenType status){
+        if(notificationRepository.findOneByNotificationPost( // check if notification like not exist then create notification
+                notificationPostRepository.findOneByPostAndNotificationPostType(post,NotificationPostType.LIKE))==null)
+            createNotificationLike(post,user);
+        else
+            updateNotificationLike(post,status); // update notification
     }
 
     @Override

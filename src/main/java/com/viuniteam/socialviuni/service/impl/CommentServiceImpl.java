@@ -10,6 +10,7 @@ import com.viuniteam.socialviuni.entity.NotificationPost;
 import com.viuniteam.socialviuni.entity.Post;
 import com.viuniteam.socialviuni.entity.User;
 import com.viuniteam.socialviuni.enumtype.NotificationPostType;
+import com.viuniteam.socialviuni.enumtype.NotificationSeenType;
 import com.viuniteam.socialviuni.exception.BadRequestException;
 import com.viuniteam.socialviuni.exception.OKException;
 import com.viuniteam.socialviuni.exception.ObjectNotFoundException;
@@ -110,13 +111,7 @@ public class CommentServiceImpl implements CommentService {
                 comment.setPost(post);
                 Comment commentSuccess = commentRepository.save(comment);
                 if(typeComment.equals("CREATE")){
-                    // create notification comment
-                    if(notificationRepository.findOneByNotificationPost( // check if not comment then create new notification
-                            notificationPostRepository.findOneByPostAndNotificationPostType(post,NotificationPostType.COMMENT)) ==null){
-                        createNotificationComment(post,comment.getUser());
-                    }
-                    else // if exist comment then update notification comment by new user
-                        updateNotificationComment(post,false);
+                    createNotification(post,comment.getUser(),NotificationSeenType.NOT_SEEN);
                 }
                 return commentResponseUtils.convert(commentSuccess);
             }
@@ -136,6 +131,7 @@ public class CommentServiceImpl implements CommentService {
 
         if(comment.getUser().getId().equals(profile.getId()) || userService.isAdmin(profile)){
             commentRepository.deleteById(commentId);
+            createNotification(comment.getPost(),comment.getUser(),NotificationSeenType.SEEN); // update notification
             throw new OKException("Xóa comment thành công");
         }
         throw new BadRequestException("Không có quyền xóa comment");
@@ -174,7 +170,7 @@ public class CommentServiceImpl implements CommentService {
                         + ShortContent.convertToShortContent(post.getContent()),
                 notificationPost);
     }
-    private void updateNotificationComment(Post post, boolean status){
+    private void updateNotificationComment(Post post, NotificationSeenType status){
         Long commentCount = commentRepository.countByPostGroupByUser(post.getId());
         if(commentCount > 0){
             User userNewComment = commentRepository.findTop1ByPostOrderByCreatedDateDesc(post).getUser();
@@ -192,6 +188,14 @@ public class CommentServiceImpl implements CommentService {
             NotificationPost notificationPost = notificationPostRepository.findOneByPostAndNotificationPostType(post,NotificationPostType.COMMENT);
             notificationService.updateNotification(content,notificationPost,status);
         }
+    }
+
+    private void createNotification(Post post, User user, NotificationSeenType status){
+        if(notificationRepository.findOneByNotificationPost( // check if notification comment not exist then create notification
+                notificationPostRepository.findOneByPostAndNotificationPostType(post,NotificationPostType.COMMENT))==null)
+            createNotificationComment(post,user);
+        else
+            updateNotificationComment(post,status); // update notification
     }
 
 }

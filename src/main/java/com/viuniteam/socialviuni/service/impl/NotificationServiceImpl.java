@@ -1,14 +1,20 @@
 package com.viuniteam.socialviuni.service.impl;
 
+import com.viuniteam.socialviuni.dto.Profile;
 import com.viuniteam.socialviuni.dto.response.notification.NotificationPostResponse;
 import com.viuniteam.socialviuni.dto.response.notification.NotificationResponse;
 import com.viuniteam.socialviuni.entity.Notification;
 import com.viuniteam.socialviuni.entity.NotificationFollow;
 import com.viuniteam.socialviuni.entity.NotificationPost;
 import com.viuniteam.socialviuni.entity.User;
+import com.viuniteam.socialviuni.enumtype.NotificationSeenType;
+import com.viuniteam.socialviuni.exception.BadRequestException;
+import com.viuniteam.socialviuni.exception.OKException;
+import com.viuniteam.socialviuni.exception.ObjectNotFoundException;
 import com.viuniteam.socialviuni.mapper.response.notification.NotificationResponseMapper;
 import com.viuniteam.socialviuni.repository.notification.NotificationRepository;
 import com.viuniteam.socialviuni.service.NotificationService;
+import com.viuniteam.socialviuni.service.UserService;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -20,6 +26,8 @@ import java.util.List;
 public class NotificationServiceImpl implements NotificationService {
     private final NotificationRepository notificationRepository;
     private final NotificationResponseMapper notificationResponseMapper;
+    private final UserService userService;
+    private final Profile profile;
 
     @Override
     public List<NotificationResponse> getAll(User user) {
@@ -43,7 +51,31 @@ public class NotificationServiceImpl implements NotificationService {
 
     @Override
     public void delete(Long id) {
+        Notification notification = notificationRepository.findOneById(id);
+        if(notification==null)
+            throw new ObjectNotFoundException("Thông báo không tồn tại");
+        if(!notification.getUser().getId().equals(profile.getId()) && !userService.isAdmin(profile))
+            throw new BadRequestException("Không có quyền xóa thông báo");
         notificationRepository.deleteById(id);
+        throw new OKException("Xóa thông báo thành công");
+    }
+
+    @Override
+    public void seenNotification() {
+        List<Notification> notificationList = notificationRepository.findAllByUserAndStatus(userService.findOneById(profile.getId()),NotificationSeenType.NOT_SEEN);
+        notificationList.stream().forEach(notification->{
+            notification.setStatus(NotificationSeenType.SEEN);
+            notificationRepository.save(notification);
+        });
+    }
+
+    @Override
+    public void readNotification(Long id) {
+        Notification notification = notificationRepository.findOneByIdAndUser(id,userService.findOneById(profile.getId()));
+        if(notification!=null){
+            notification.setStatus(NotificationSeenType.READ);
+            notificationRepository.save(notification);
+        }
     }
 
     @Override
@@ -52,7 +84,7 @@ public class NotificationServiceImpl implements NotificationService {
                 .notificationPost(notificationPost)
                 .user(user)
                 .content(content)
-                .status(false)
+                .status(NotificationSeenType.NOT_SEEN)
                 .build();
         notificationRepository.save(notification);
     }
@@ -63,13 +95,13 @@ public class NotificationServiceImpl implements NotificationService {
                 .notificationFollow(notificationFollow)
                 .user(user)
                 .content(content)
-                .status(false)
+                .status(NotificationSeenType.NOT_SEEN)
                 .build();
         notificationRepository.save(notification);
     }
 
     @Override
-    public void updateNotification(String content,NotificationPost notificationPost, boolean status) {
+    public void updateNotification(String content,NotificationPost notificationPost, NotificationSeenType status) {
         Notification oldNotification = notificationRepository.findOneByNotificationPost(notificationPost);
         Notification newNotification = Notification.builder()
                 .notificationPost(notificationPost)
