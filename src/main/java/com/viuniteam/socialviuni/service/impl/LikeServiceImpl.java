@@ -16,6 +16,7 @@ import com.viuniteam.socialviuni.service.LikeService;
 import com.viuniteam.socialviuni.service.NotificationService;
 import com.viuniteam.socialviuni.service.UserService;
 import com.viuniteam.socialviuni.utils.ListUtils;
+import com.viuniteam.socialviuni.utils.ShortContent;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -37,54 +38,80 @@ public class LikeServiceImpl implements LikeService {
         Post post = postRepository.findOneById(postId);
         if(post == null || !post.getAuthor().isActive()) throw new ObjectNotFoundException("Bài viết không tồn tại");
         User user = userService.findOneById(profile.getId());
+
+        // like
         if(!checkLiked(post,user)){
+            if(checkDisliked(post,user)){ // if dislike then like
+                Like like = likeRepository.findOneByPostAndUser(post,user);
+                like.setStatus(true);
+                likeRepository.save(like);
+                updateNotificationLike(post,true); // update notification like
+                throw new OKException("Đã like");
+            }
             Like like = Like.builder()
                     .post(post)
                     .user(user)
+                    .status(true)
                     .build();
             likeRepository.save(like);
 
-            //create notification
-
-            if(notificationRepository.findOneByNotificationPost(
-                    notificationPostRepository.findOneByPostAndNotificationPostType(post,NotificationPostType.LIKE)
-            )==null){
-                NotificationPost notificationPost = NotificationPost.builder()
-                        .notificationPostType(NotificationPostType.LIKE)
-                        .post(post)
-                        .build();
-                notificationService.createNotification(
-                        post.getAuthor(),
-                        user.getLastName()+" "+user.getFirstName()+" đã thích bài viết "+post.getContent().substring(0,30)+"...",
-                        notificationPost);
+            // create notification like
+            if(notificationRepository.findOneByNotificationPost( // check if not like then create new notification
+                    notificationPostRepository.findOneByPostAndNotificationPostType(post,NotificationPostType.LIKE)) ==null){
+                createNotificationLike(post,user);
             }
-            else{
-                List<Like> listLike = likeRepository.findAllByPostOrderByCreatedDate(post);
-                Like lastLike = ListUtils.getLast(listLike);
-                User userLastLike = lastLike.getUser();
-                NotificationPost notificationPost = notificationPostRepository.findOneByPostAndNotificationPostType(post,NotificationPostType.LIKE);
-                notificationService.updateNotification(
-                        userLastLike.getLastName()+" "+userLastLike.getFirstName()+" và "+(likeRepository.countByPost(post)-1)+" người khác đã thích bài viết: "+post.getContent().substring(0,30)+"...",
-                        notificationPost
-                );
-            }
+            else // if exist liked then update notification like by new user
+                updateNotificationLike(post,false);
 
             throw new OKException("Đã like");
         }
-        likeRepository.deleteByUserAndPost(user,post);
-        List<Like> listLike = likeRepository.findAllByPostOrderByCreatedDate(post);
-        Like lastLike = ListUtils.getLast(listLike);
-        User userLastLike = lastLike.getUser();
-        NotificationPost notificationPost = notificationPostRepository.findOneByPostAndNotificationPostType(post,NotificationPostType.LIKE);
-        notificationService.updateNotification(
-                userLastLike.getLastName()+" "+userLastLike.getFirstName()+" và "+(likeRepository.countByPost(post)-1)+" người khác đã thích bài viết: "+post.getContent().substring(0,30)+"...",
-                notificationPost
-        );
+
+        //dislike
+        Like like = likeRepository.findOneByPostAndUser(post,user);
+        like.setStatus(false);
+        likeRepository.save(like);
+        updateNotificationLike(post,true); // update notification if dislike
+
         throw new OKException("Đã hủy like");
+    }
+
+    private void createNotificationLike(Post post,User user){
+        NotificationPost notificationPost = NotificationPost.builder()
+                .notificationPostType(NotificationPostType.LIKE)
+                .post(post)
+                .build();
+        notificationService.createNotification(
+                post.getAuthor(),
+                user.getLastName()+" "+user.getFirstName()+" đã thích bài viết: "+ ShortContent.convertToShortContent(post.getContent()),
+                notificationPost);
+    }
+
+    private void updateNotificationLike(Post post, boolean status){
+        Long likeCount = likeRepository.countByPostAndStatus(post,true);
+        if(likeCount > 0){
+            User userNewLike = likeRepository.findTop1ByPostAndStatusOrderByCreatedDateDesc(post,true).getUser();
+            String fullName = userNewLike.getLastName()+" "+userNewLike.getFirstName();
+
+            String postShortContent = ShortContent.convertToShortContent(post.getContent());
+            String content;
+
+            if(likeCount == 1)
+                content = fullName+" đã thích bài viết: "+postShortContent;
+            else
+                content = fullName +" và "+(likeCount-1) +" người khác đã thích bài viết: "+postShortContent;
+
+            NotificationPost notificationPost = notificationPostRepository.findOneByPostAndNotificationPostType(post,NotificationPostType.LIKE);
+            notificationService.updateNotification(content,notificationPost,status);
+        }
     }
 
     @Override
     public boolean checkLiked(Post post, User user) {
-        return likeRepository.findOneByPostAndUser(post,user)!=null;
+        return likeRepository.existsByPostAndUserAndStatus(post,user, true);
+    }
+
+    @Override
+    public boolean checkDisliked(Post post, User user) {
+        return likeRepository.existsByPostAndUserAndStatus(post,user,false);
     }
 }

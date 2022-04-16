@@ -1,6 +1,5 @@
 package com.viuniteam.socialviuni.service.impl;
 
-import com.viuniteam.socialviuni.annotation.offensivekeyword.HandlingOffensive;
 import com.viuniteam.socialviuni.dto.Profile;
 import com.viuniteam.socialviuni.dto.request.post.PostSaveRequest;
 import com.viuniteam.socialviuni.dto.response.post.PostResponse;
@@ -9,10 +8,15 @@ import com.viuniteam.socialviuni.entity.Image;
 import com.viuniteam.socialviuni.entity.Post;
 import com.viuniteam.socialviuni.entity.User;
 import com.viuniteam.socialviuni.enumtype.PrivicyPostType;
-import com.viuniteam.socialviuni.exception.*;
+import com.viuniteam.socialviuni.exception.BadRequestException;
+import com.viuniteam.socialviuni.exception.OKException;
+import com.viuniteam.socialviuni.exception.ObjectNotFoundException;
 import com.viuniteam.socialviuni.mapper.request.post.PostRequestMapper;
 import com.viuniteam.socialviuni.repository.PostRepository;
-import com.viuniteam.socialviuni.service.*;
+import com.viuniteam.socialviuni.service.FriendService;
+import com.viuniteam.socialviuni.service.ImageService;
+import com.viuniteam.socialviuni.service.PostService;
+import com.viuniteam.socialviuni.service.UserService;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;

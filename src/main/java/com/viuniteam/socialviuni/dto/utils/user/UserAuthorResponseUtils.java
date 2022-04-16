@@ -2,6 +2,7 @@ package com.viuniteam.socialviuni.dto.utils.user;
 
 import com.viuniteam.socialviuni.dto.response.user.UserAuthorResponse;
 import com.viuniteam.socialviuni.dto.utils.ResponseUtils;
+import com.viuniteam.socialviuni.dto.utils.ResponseUtilsAdapter;
 import com.viuniteam.socialviuni.entity.User;
 import com.viuniteam.socialviuni.mapper.response.image.ImageReponseMapper;
 import com.viuniteam.socialviuni.mapper.response.user.UserAuthorResponseMapper;
@@ -13,7 +14,7 @@ import java.util.List;
 
 @AllArgsConstructor
 @Component
-public class UserAuthorResponseUtils implements ResponseUtils<User,UserAuthorResponse> {
+public class UserAuthorResponseUtils extends ResponseUtilsAdapter<User,UserAuthorResponse> {
     private final UserAuthorResponseMapper userAuthorResponseMapper;
     private final ImageReponseMapper imageReponseMapper;
 
@@ -25,8 +26,4 @@ public class UserAuthorResponseUtils implements ResponseUtils<User,UserAuthorRes
         return userAuthorResponse;
     }
 
-    @Override
-    public List<UserAuthorResponse> convert(List<User> obj) {
-        return null;
-    }
 }

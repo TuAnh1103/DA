@@ -2,7 +2,7 @@ package com.viuniteam.socialviuni.dto.utils.post;
 
 import com.viuniteam.socialviuni.dto.Profile;
 import com.viuniteam.socialviuni.dto.response.post.PostResponse;
-import com.viuniteam.socialviuni.dto.utils.ResponseUtils;
+import com.viuniteam.socialviuni.dto.utils.ResponseUtilsAdapter;
 import com.viuniteam.socialviuni.dto.utils.user.UserAuthorResponseUtils;
 import com.viuniteam.socialviuni.entity.Post;
 import com.viuniteam.socialviuni.entity.User;
@@ -14,11 +14,9 @@ import com.viuniteam.socialviuni.service.UserService;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
-
 @Component
 @AllArgsConstructor
-public class PostResponseUtils implements ResponseUtils<Post,PostResponse> {
+public class PostResponseUtils extends ResponseUtilsAdapter<Post,PostResponse> {
     private final PostResponseMapper postResponseMapper;
     private final UserAuthorResponseUtils userAuthorResponseUtils;
     private final LikeRepository likeRepository;
@@ -31,15 +29,10 @@ public class PostResponseUtils implements ResponseUtils<Post,PostResponse> {
         PostResponse postResponse = postResponseMapper.from(obj);
         User author = obj.getAuthor();
         postResponse.setAuthorResponse(userAuthorResponseUtils.convert(author));
-        postResponse.setLikeCount(likeRepository.countByPost(obj));
+        postResponse.setLikeCount(likeRepository.countByPostAndStatus(obj, true));
         postResponse.setCommentCount(commentRepository.countByPost(obj));
         postResponse.setShareCount(shareRepository.countByPost(obj));
-        postResponse.setLiked(likeRepository.existsByPostAndUser(obj,userService.findOneById(profile.getId())));
+        postResponse.setLiked(likeRepository.existsByPostAndUserAndStatus(obj,userService.findOneById(profile.getId()),true));
         return postResponse;
-    }
-
-    @Override
-    public List<PostResponse> convert(List<Post> obj) {
-        return null;
     }
 }

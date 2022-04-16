@@ -29,7 +29,7 @@ public class PostController {
         return postService.save(postSaveRequest);
     }
     @PutMapping("/{id}") // update post
-    public PostResponse updatePost(@PathVariable("id") Long idPost,@RequestBody PostSaveRequest postSaveRequest){
+    public PostResponse updatePost(@PathVariable("id") Long idPost,@RequestBody @Valid PostSaveRequest postSaveRequest){
         return postService.update(idPost,postSaveRequest);
     }
 

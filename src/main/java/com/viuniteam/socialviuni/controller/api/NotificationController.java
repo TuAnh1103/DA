@@ -1,13 +1,11 @@
 package com.viuniteam.socialviuni.controller.api;
 
-import com.viuniteam.socialviuni.dto.response.notification.NotificationPostResponse;
+import com.viuniteam.socialviuni.dto.Profile;
 import com.viuniteam.socialviuni.dto.response.notification.NotificationResponse;
 import com.viuniteam.socialviuni.service.NotificationService;
+import com.viuniteam.socialviuni.service.UserService;
 import lombok.AllArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -16,13 +14,15 @@ import java.util.List;
 @RequestMapping("/notification")
 public class NotificationController {
     private final NotificationService notificationService;
-    @PostMapping("/noti")
-    public void add(){
-//        notificationService.createNotification();
-    }
+    private final UserService userService;
+    private final Profile profile;
 
     @GetMapping
     public List<NotificationResponse> getAll(){
-        return notificationService.getAll();
+        return notificationService.getAll(userService.findOneById(profile.getId()));
+    }
+    @DeleteMapping("/{id}")
+    public void delete(@PathVariable("id") Long id){
+        notificationService.delete(id);
     }
 }

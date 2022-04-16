@@ -2,6 +2,7 @@ package com.viuniteam.socialviuni.dto.utils.share;
 
 import com.viuniteam.socialviuni.dto.response.share.ShareResponse;
 import com.viuniteam.socialviuni.dto.utils.ResponseUtils;
+import com.viuniteam.socialviuni.dto.utils.ResponseUtilsAdapter;
 import com.viuniteam.socialviuni.dto.utils.post.PostResponseUtils;
 import com.viuniteam.socialviuni.dto.utils.user.UserAuthorResponseUtils;
 import com.viuniteam.socialviuni.entity.Share;
@@ -13,7 +14,7 @@ import java.util.List;
 
 @Component
 @AllArgsConstructor
-public class ShareResponseUtils implements ResponseUtils<Share, ShareResponse> {
+public class ShareResponseUtils extends ResponseUtilsAdapter<Share, ShareResponse> {
     private final ShareResponseMapper shareResponseMapper;
     private final PostResponseUtils postResponseUtils;
     private final UserAuthorResponseUtils userAuthorResponseUtils;
@@ -25,8 +26,4 @@ public class ShareResponseUtils implements ResponseUtils<Share, ShareResponse> {
         return shareResponse;
     }
 
-    @Override
-    public List<ShareResponse> convert(List<Share> obj) {
-        return null;
-    }
 }

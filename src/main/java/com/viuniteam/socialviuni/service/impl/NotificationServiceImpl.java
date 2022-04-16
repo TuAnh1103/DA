@@ -1,6 +1,5 @@
 package com.viuniteam.socialviuni.service.impl;
 
-import com.viuniteam.socialviuni.dto.Profile;
 import com.viuniteam.socialviuni.dto.response.notification.NotificationPostResponse;
 import com.viuniteam.socialviuni.dto.response.notification.NotificationResponse;
 import com.viuniteam.socialviuni.entity.Notification;
@@ -10,7 +9,6 @@ import com.viuniteam.socialviuni.entity.User;
 import com.viuniteam.socialviuni.mapper.response.notification.NotificationResponseMapper;
 import com.viuniteam.socialviuni.repository.notification.NotificationRepository;
 import com.viuniteam.socialviuni.service.NotificationService;
-import com.viuniteam.socialviuni.service.UserService;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -22,28 +20,34 @@ import java.util.List;
 public class NotificationServiceImpl implements NotificationService {
     private final NotificationRepository notificationRepository;
     private final NotificationResponseMapper notificationResponseMapper;
-    private final UserService userService;
-    private final Profile profile;
+
     @Override
-    public List<NotificationResponse> getAll() {
-        List<Notification> notificationList = notificationRepository.findAllByUser(userService.findOneById(profile.getId()));
+    public List<NotificationResponse> getAll(User user) {
+        List<Notification> notificationList = notificationRepository.findAllByUser(user);
         List<NotificationResponse> notificationResponseList = new ArrayList<>();
         notificationList.stream().forEach(notification -> {
             NotificationResponse notificationResponse = notificationResponseMapper.from(notification);
 
-            NotificationPostResponse notificationPostResponse = new NotificationPostResponse();
-            notificationPostResponse.setPostId(notification.getNotificationPost().getId());
-            notificationPostResponse.setNotificationPostType(notification.getNotificationPost().getNotificationPostType());
-
+            //set notification post
+            NotificationPostResponse notificationPostResponse = NotificationPostResponse.builder()
+                    .postId(notification.getNotificationPost().getId())
+                    .notificationPostType(notification.getNotificationPost().getNotificationPostType())
+                    .build();
             notificationResponse.setNotificationPostResponse(notificationPostResponse);
+
+
             notificationResponseList.add(notificationResponse);
         });
         return notificationResponseList;
     }
 
     @Override
-    public void createNotification(User user, String content, NotificationPost notificationPost) {
+    public void delete(Long id) {
+        notificationRepository.deleteById(id);
+    }
 
+    @Override
+    public void createNotification(User user, String content, NotificationPost notificationPost) {
         Notification notification = Notification.builder()
                 .notificationPost(notificationPost)
                 .user(user)
@@ -65,13 +69,13 @@ public class NotificationServiceImpl implements NotificationService {
     }
 
     @Override
-    public void updateNotification(String content,NotificationPost notificationPost) {
+    public void updateNotification(String content,NotificationPost notificationPost, boolean status) {
         Notification oldNotification = notificationRepository.findOneByNotificationPost(notificationPost);
         Notification newNotification = Notification.builder()
                 .notificationPost(notificationPost)
                 .user(oldNotification.getUser())
                 .content(content)
-                .status(false)
+                .status(status)
                 .build();
         newNotification.setId(oldNotification.getId());
         notificationRepository.save(newNotification);

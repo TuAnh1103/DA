@@ -23,8 +23,4 @@ public class ShareController {
     public void removeSharePost(@PathVariable("postId") Long shareId){
         shareService.removeShare(shareId);
     }
-//    @GetMapping("/count/{postId}")
-//    public Long countShareByPost(@PathVariable("postId") Long postId){
-//        return shareService.countSharePost(postId);
-//    }
 }

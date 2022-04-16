@@ -21,4 +21,8 @@ public class Like extends BaseEntity{
     @ManyToOne
     @JoinColumn(name = "post_id")
     private Post post;
+
+    @Column
+    private boolean status;
+
 }

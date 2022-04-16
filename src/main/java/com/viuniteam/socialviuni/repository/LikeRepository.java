@@ -10,9 +10,8 @@ import java.util.List;
 
 @Transactional
 public interface LikeRepository extends JpaRepository<Like,Long> {
-    void deleteByUserAndPost(User user, Post post);
-    Long countByPost(Post post);
+    Long countByPostAndStatus(Post post,boolean status);
     Like findOneByPostAndUser(Post post, User user);
-    Boolean existsByPostAndUser(Post post,User user);
-    List<Like> findAllByPostOrderByCreatedDate(Post post);
+    Boolean existsByPostAndUserAndStatus(Post post, User user, boolean status);
+    Like findTop1ByPostAndStatusOrderByCreatedDateDesc(Post post, boolean status);
 }

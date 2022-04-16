@@ -11,6 +11,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.List;
 
 @RestController
@@ -20,12 +21,12 @@ public class CommentController {
     private final CommentService commentService;
 
     @PostMapping("/{postId}")
-    public CommentResponse addComment(@RequestBody CommentSaveRequest commentSaveRequest, @PathVariable("postId") Long postId){
+    public CommentResponse addComment(@RequestBody @Valid CommentSaveRequest commentSaveRequest, @PathVariable("postId") Long postId){
         return commentService.save(commentSaveRequest,postId);
     }
 
     @PutMapping
-    public CommentResponse updateComment(@RequestBody CommentUpdateRequest commentUpdateRequest){
+    public CommentResponse updateComment(@RequestBody @Valid CommentUpdateRequest commentUpdateRequest){
         return commentService.update(commentUpdateRequest);
     }
 

@@ -8,8 +8,9 @@ import com.viuniteam.socialviuni.entity.User;
 import java.util.List;
 
 public interface NotificationService {
-    List<NotificationResponse> getAll();
+    List<NotificationResponse> getAll(User user);
+    void delete(Long id);
     void createNotification(User user, String content, NotificationPost notificationPost);
     void createNotification(User user, String content, NotificationFollow notificationFollow);
-    void updateNotification(String content,NotificationPost notificationPost);
+    void updateNotification(String content,NotificationPost notificationPost, boolean status);
 }

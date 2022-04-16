@@ -10,4 +10,5 @@ import java.util.List;
 public interface NotificationRepository extends JpaRepository<Notification,Long> {
     Notification findOneByNotificationPost(NotificationPost notificationPost);
     List<Notification> findAllByUser(User user);
+    void deleteById(Long id);
 }

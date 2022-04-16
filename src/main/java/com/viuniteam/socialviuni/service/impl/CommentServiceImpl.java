@@ -1,13 +1,15 @@
 package com.viuniteam.socialviuni.service.impl;
 
-import com.viuniteam.socialviuni.annotation.offensivekeyword.HandlingOffensive;
 import com.viuniteam.socialviuni.dto.Profile;
 import com.viuniteam.socialviuni.dto.request.comment.CommentSaveRequest;
 import com.viuniteam.socialviuni.dto.request.comment.CommentUpdateRequest;
 import com.viuniteam.socialviuni.dto.response.comment.CommentResponse;
-import com.viuniteam.socialviuni.dto.utils.comment.CommentResponseUltils;
+import com.viuniteam.socialviuni.dto.utils.comment.CommentResponseUtils;
 import com.viuniteam.socialviuni.entity.Comment;
+import com.viuniteam.socialviuni.entity.NotificationPost;
 import com.viuniteam.socialviuni.entity.Post;
+import com.viuniteam.socialviuni.entity.User;
+import com.viuniteam.socialviuni.enumtype.NotificationPostType;
 import com.viuniteam.socialviuni.exception.BadRequestException;
 import com.viuniteam.socialviuni.exception.OKException;
 import com.viuniteam.socialviuni.exception.ObjectNotFoundException;
@@ -15,8 +17,11 @@ import com.viuniteam.socialviuni.mapper.request.comment.CommentRequestMapper;
 import com.viuniteam.socialviuni.mapper.request.comment.CommentUpdateRequestMapper;
 import com.viuniteam.socialviuni.repository.CommentRepository;
 import com.viuniteam.socialviuni.repository.PostRepository;
+import com.viuniteam.socialviuni.repository.notification.NotificationPostRepository;
+import com.viuniteam.socialviuni.repository.notification.NotificationRepository;
 import com.viuniteam.socialviuni.service.*;
 import com.viuniteam.socialviuni.utils.ListUtils;
+import com.viuniteam.socialviuni.utils.ShortContent;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -39,7 +44,12 @@ public class CommentServiceImpl implements CommentService {
     private final ImageService imageService;
     private final UserService userService;
     private final Profile profile;
-    private final CommentResponseUltils commentResponseUltils;
+    private final CommentResponseUtils commentResponseUtils;
+
+    private final NotificationService notificationService;
+    private final NotificationRepository notificationRepository;
+    protected final NotificationPostRepository notificationPostRepository;
+
 //    private final HandlingOffensive handlingOffensive;
     @Override
     public CommentResponse save(CommentSaveRequest commentSaveRequest, Long postId) {
@@ -50,7 +60,8 @@ public class CommentServiceImpl implements CommentService {
         comment.setUser(userService.findOneById(profile.getId()));
         comment.setImages(ListUtils.oneToList(imageService.findOneById(commentSaveRequest.getImageId())));
         Post post = postRepository.findOneById(postId);
-        return convertToCommentResponse(post,comment);
+
+        return convertToCommentResponse(post,comment, "CREATE");
     }
 
     @Override
@@ -88,17 +99,26 @@ public class CommentServiceImpl implements CommentService {
         if(oldComment.getUser().getId().equals(profile.getId()) ||  userService.isAdmin(profile)){
             newComment.setCreatedDate(oldComment.getCreatedDate());
             newComment.setUser(oldComment.getUser());
-            return convertToCommentResponse(oldComment.getPost(),newComment);
+            return convertToCommentResponse(oldComment.getPost(),newComment, "UPDATE");
         }
         throw new BadRequestException("Không có quyền sửa comment");
     }
 
-    private CommentResponse convertToCommentResponse(Post post, Comment comment){
+    private CommentResponse convertToCommentResponse(Post post, Comment comment, String typeComment){
         if(post!=null){
             if(post.getAuthor().isActive() || userService.isAdmin(profile)){
                 comment.setPost(post);
                 Comment commentSuccess = commentRepository.save(comment);
-                return commentResponseUltils.convert(commentSuccess);
+                if(typeComment.equals("CREATE")){
+                    // create notification comment
+                    if(notificationRepository.findOneByNotificationPost( // check if not comment then create new notification
+                            notificationPostRepository.findOneByPostAndNotificationPostType(post,NotificationPostType.COMMENT)) ==null){
+                        createNotificationComment(post,comment.getUser());
+                    }
+                    else // if exist comment then update notification comment by new user
+                        updateNotificationComment(post,false);
+                }
+                return commentResponseUtils.convert(commentSuccess);
             }
             throw new ObjectNotFoundException("Bài viết không tồn tại");
         }
@@ -130,7 +150,7 @@ public class CommentServiceImpl implements CommentService {
         List<CommentResponse> commentResponses = commentPage
                 .stream()
                 .filter(comment -> comment.getUser().isActive() || userService.isAdmin(profile))
-                .map(commentResponseUltils::convert)
+                .map(commentResponseUtils::convert)
                 .collect(Collectors.toList());
         Collections.sort(commentResponses, new Comparator<CommentResponse>() { // sap xep lai comment theo thu tu tang dan cua id
             @Override
@@ -142,4 +162,36 @@ public class CommentServiceImpl implements CommentService {
         });
         return new PageImpl<>(commentResponses,pageable,commentResponses.size());
     }
+
+    private void createNotificationComment(Post post, User user){
+        NotificationPost notificationPost = NotificationPost.builder()
+                .notificationPostType(NotificationPostType.COMMENT)
+                .post(post)
+                .build();
+        notificationService.createNotification(
+                post.getAuthor(),
+                user.getLastName()+" "+user.getFirstName()+" đã bình luận bài viết: "
+                        + ShortContent.convertToShortContent(post.getContent()),
+                notificationPost);
+    }
+    private void updateNotificationComment(Post post, boolean status){
+        Long commentCount = commentRepository.countByPostGroupByUser(post.getId());
+        if(commentCount > 0){
+            User userNewComment = commentRepository.findTop1ByPostOrderByCreatedDateDesc(post).getUser();
+
+            String fullName = userNewComment.getLastName()+" "+userNewComment.getFirstName();
+
+            String postShortContent = ShortContent.convertToShortContent(post.getContent());
+            String content;
+
+            if(commentCount == 1)
+                content = fullName+" đã bình luận bài viết: "+postShortContent;
+            else
+                content = fullName +" và "+(commentCount-1) +" người khác đã bình luận bài viết: "+postShortContent;
+
+            NotificationPost notificationPost = notificationPostRepository.findOneByPostAndNotificationPostType(post,NotificationPostType.COMMENT);
+            notificationService.updateNotification(content,notificationPost,status);
+        }
+    }
+
 }
