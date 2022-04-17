@@ -73,6 +73,7 @@ public class LikeServiceImpl implements LikeService {
                 .notificationPostType(NotificationPostType.LIKE)
                 .post(post)
                 .build();
+
         notificationService.createNotification(
                 post.getAuthor(),
                 user.getLastName()+" "+user.getFirstName()+" đã thích bài viết: "+ ShortContent.convertToShortContent(post.getContent()),
@@ -83,7 +84,8 @@ public class LikeServiceImpl implements LikeService {
         Long likeCount = likeRepository.countByPostAndStatus(post,true);
         if(likeCount > 0){
             User userNewLike = likeRepository.findTop1ByPostAndStatusOrderByCreatedDateDesc(post,true).getUser();
-            String fullName = userNewLike.getLastName()+" "+userNewLike.getFirstName();
+
+            String fullName=userNewLike.getLastName()+" "+userNewLike.getFirstName();
 
             String postShortContent = ShortContent.convertToShortContent(post.getContent());
             String content;
@@ -99,11 +101,11 @@ public class LikeServiceImpl implements LikeService {
     }
 
     private void createNotification(Post post, User user, NotificationSeenType status){
-        if(notificationRepository.findOneByNotificationPost( // check if notification like not exist then create notification
-                notificationPostRepository.findOneByPostAndNotificationPostType(post,NotificationPostType.LIKE))==null)
-            createNotificationLike(post,user);
-        else
-            updateNotificationLike(post,status); // update notification
+            if(notificationRepository.findOneByNotificationPost( // check if notification like not exist then create notification
+                    notificationPostRepository.findOneByPostAndNotificationPostType(post,NotificationPostType.LIKE))==null)
+                createNotificationLike(post,user);
+            else
+                updateNotificationLike(post,status); // update notification
     }
 
     @Override
