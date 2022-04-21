@@ -115,7 +115,7 @@ public class PostServiceImpl implements PostService {
         Post post = Post.builder()
                 .author(userService.findOneById(profile.getId()))
                 .content(content)
-                .privicy(1)
+                .privacy(1)
                 .images(images)
                 .build();
         postRepository.save(post);
@@ -129,7 +129,7 @@ public class PostServiceImpl implements PostService {
 
     @Override
     public boolean checkPrivicy(Post post, Profile profile) { // check quyen rieng tu bai viet
-        if(post.getPrivicy() == PrivicyPostType.FRIEND.getCode()){ // quyen rieng tu ban be
+        if(post.getPrivacy() == PrivicyPostType.FRIEND.getCode()){ // quyen rieng tu ban be
             if(friendService.isFriend(post.getAuthor().getId(),profile.getId())
                     || post.getAuthor().getId().equals(profile.getId())
                     || userService.isAdmin(profile))
@@ -137,7 +137,7 @@ public class PostServiceImpl implements PostService {
 
             return false;
         }
-        else if(post.getPrivicy() == PrivicyPostType.ONLY_ME.getCode()){ // quyen rieng tu chi minh toi
+        else if(post.getPrivacy() == PrivicyPostType.ONLY_ME.getCode()){ // quyen rieng tu chi minh toi
             if (post.getAuthor().getId() == profile.getId() || userService.isAdmin(profile))
                 return true;
 

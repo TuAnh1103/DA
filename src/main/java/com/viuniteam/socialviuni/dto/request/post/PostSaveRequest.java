@@ -1,7 +1,6 @@
 package com.viuniteam.socialviuni.dto.request.post;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.viuniteam.socialviuni.annotation.offensivekeyword.ValidOffensive;
 import com.viuniteam.socialviuni.annotation.offensivekeyword.ValidOffensiveKeyword;
 import lombok.Data;
 import org.hibernate.validator.constraints.Length;
@@ -22,7 +21,7 @@ public class PostSaveRequest {
     @NotNull(message = "Quyền riêng tư bài viết không được để trống")
     @Min(value = 1,message = "Quyền riêng tư phải có độ lớn từ 1 đến 3")
     @Max(value = 3,message = "Quyền riêng tư phải có độ lớn từ 1 đến 3")
-    private Integer privicy;
+    private Integer privacy;
 
     @JsonProperty("images")
     private List<Long> imageIds = new ArrayList<>();

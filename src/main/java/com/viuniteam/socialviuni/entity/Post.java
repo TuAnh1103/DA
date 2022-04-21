@@ -23,7 +23,7 @@ public class Post extends BaseEntity{
     private String content;
 
     @Column
-    private Integer privicy; /* 1-cong khai 2-ban be 3- chi minh toi*/
+    private Integer privacy; /* 1-cong khai 2-ban be 3- chi minh toi*/
 
 
     @OneToMany(mappedBy = "post",cascade = CascadeType.REMOVE) // cascadetype.all la xoa post thi all cmt cx bi xoa nhe
@@ -45,5 +45,8 @@ public class Post extends BaseEntity{
 
     @OneToMany(mappedBy = "post")
     private List<NotificationPost> notificationPostList;
+
+    @OneToOne(cascade = CascadeType.ALL)
+    private Report report;
 
 }

@@ -1,9 +1,6 @@
 package com.viuniteam.socialviuni.entity;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.util.ArrayList;
@@ -29,4 +26,8 @@ public class Comment extends BaseEntity{
     @JoinTable(name = "comment_images",joinColumns = @JoinColumn(name = "comment_id",nullable = false),
             inverseJoinColumns = @JoinColumn(name = "image_id",nullable = false))
     private List<Image> images = new ArrayList<>();
+
+
+    @OneToOne(cascade = CascadeType.ALL)
+    private Report report;
 }

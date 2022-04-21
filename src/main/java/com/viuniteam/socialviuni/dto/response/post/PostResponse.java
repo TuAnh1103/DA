@@ -14,7 +14,7 @@ public class PostResponse extends BaseDTO {
     @JsonProperty("author")
     private UserAuthorResponse authorResponse;
     private String content;
-    private Integer privicy;
+    private Integer privacy;
 
     @JsonProperty("images")
     private List<ImageResponse> images;
