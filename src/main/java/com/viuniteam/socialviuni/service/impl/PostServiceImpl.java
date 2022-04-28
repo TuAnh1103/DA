@@ -4,19 +4,15 @@ import com.viuniteam.socialviuni.dto.Profile;
 import com.viuniteam.socialviuni.dto.request.post.PostSaveRequest;
 import com.viuniteam.socialviuni.dto.response.post.PostResponse;
 import com.viuniteam.socialviuni.dto.utils.post.PostResponseUtils;
-import com.viuniteam.socialviuni.entity.Image;
-import com.viuniteam.socialviuni.entity.Post;
-import com.viuniteam.socialviuni.entity.User;
+import com.viuniteam.socialviuni.entity.*;
 import com.viuniteam.socialviuni.enumtype.PrivicyPostType;
 import com.viuniteam.socialviuni.exception.BadRequestException;
 import com.viuniteam.socialviuni.exception.OKException;
 import com.viuniteam.socialviuni.exception.ObjectNotFoundException;
 import com.viuniteam.socialviuni.mapper.request.post.PostRequestMapper;
 import com.viuniteam.socialviuni.repository.PostRepository;
-import com.viuniteam.socialviuni.service.FriendService;
-import com.viuniteam.socialviuni.service.ImageService;
-import com.viuniteam.socialviuni.service.PostService;
-import com.viuniteam.socialviuni.service.UserService;
+import com.viuniteam.socialviuni.service.*;
+import com.viuniteam.socialviuni.utils.ShortContent;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -36,6 +32,7 @@ public class PostServiceImpl implements PostService {
     private final FriendService friendService;
     private final ImageService imageService;
     private final PostResponseUtils postResponseUtils;
+    private final NotificationService notificationService;
 //    private final HandlingOffensive handlingOffensive;
     @Override
     public PostResponse save(PostSaveRequest postSaveRequest) {
@@ -43,11 +40,18 @@ public class PostServiceImpl implements PostService {
         //handlingOffensive.handling(postSaveRequest);
 
         Post post = postRequestMapper.to(postSaveRequest);
-        post.setAuthor(userService.findOneById(profile.getId()));
+
+        User author = userService.findOneById(profile.getId());
+        post.setAuthor(author);
 
         List<Image> images = listImageFromRequest(postSaveRequest);
         if(images!=null)
             post.setImages(images);
+
+        //create notification to follower
+        List<Follower> followers = author.getFollowers();
+        followers.stream().forEach(follower -> createNotificationToFollower(follower.getUser(),post));
+
         return convertToPostResponse(post);
     }
 
@@ -163,5 +167,13 @@ public class PostServiceImpl implements PostService {
     public PostResponse convertToPostResponse(Post post){
         Post postSuccess = postRepository.save(post);
         return postResponseUtils.convert(postSuccess);
+    }
+
+    private void createNotificationToFollower(User user,Post post){
+        NotificationFollow notificationFollow = NotificationFollow.builder()
+                .post(post)
+                .build();
+        notificationService.createNotification(user,user.getLastName()+" "+user.getFirstName()+" đã thêm mới bài viết: "
+                + ShortContent.convertToShortContent(post.getContent()),notificationFollow);
     }
 }

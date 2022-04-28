@@ -17,8 +17,14 @@ public class NotificationFollow {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @OneToOne
-    private Follower follower;
+    @ManyToOne
+    @JoinColumn(name = "post_id")
+    private Post post;
+
+    @ManyToOne
+    @JoinColumn(name = "share_id")
+    private Share share;
+
 
     @OneToOne(cascade = CascadeType.ALL)
     private Notification notification;

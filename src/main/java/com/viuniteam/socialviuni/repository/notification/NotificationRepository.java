@@ -6,8 +6,10 @@ import com.viuniteam.socialviuni.entity.User;
 import com.viuniteam.socialviuni.enumtype.NotificationSeenType;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import javax.transaction.Transactional;
 import java.util.List;
 
+@Transactional
 public interface NotificationRepository extends JpaRepository<Notification,Long> {
     Notification findOneByNotificationPost(NotificationPost notificationPost);
     Notification findOneById(Long id);
