@@ -14,4 +14,6 @@ public class NotificationPostResponse {
 
     @JsonProperty("post_id")
     private Long postId;
+
+    private String avatar;
 }

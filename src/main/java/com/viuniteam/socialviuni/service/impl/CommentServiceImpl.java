@@ -140,7 +140,7 @@ public class CommentServiceImpl implements CommentService {
     @Override
     public Page<CommentResponse> findAllByPost(Long postId, Pageable pageable) {
         Post post = postRepository.findOneById(postId);
-        if(post==null || (!post.getAuthor().isActive()&& userService.isAdmin(profile)) || !postService.checkPrivicy(post,profile))
+        if(post==null || (!post.getAuthor().isActive()&& userService.isAdmin(profile)) || !postService.checkPrivacy(post,profile))
             throw new ObjectNotFoundException("Bài viết không tồn tại");
         Page<Comment> commentPage = commentRepository.findAllByPostOrderByIdDesc(post,pageable);
         List<CommentResponse> commentResponses = commentPage

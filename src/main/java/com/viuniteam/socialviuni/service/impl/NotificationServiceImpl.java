@@ -1,12 +1,11 @@
 package com.viuniteam.socialviuni.service.impl;
 
 import com.viuniteam.socialviuni.dto.Profile;
+import com.viuniteam.socialviuni.dto.response.notification.NotificationFollowResponse;
 import com.viuniteam.socialviuni.dto.response.notification.NotificationPostResponse;
 import com.viuniteam.socialviuni.dto.response.notification.NotificationResponse;
-import com.viuniteam.socialviuni.entity.Notification;
-import com.viuniteam.socialviuni.entity.NotificationFollow;
-import com.viuniteam.socialviuni.entity.NotificationPost;
-import com.viuniteam.socialviuni.entity.User;
+import com.viuniteam.socialviuni.entity.*;
+import com.viuniteam.socialviuni.enumtype.NotificationPostType;
 import com.viuniteam.socialviuni.enumtype.NotificationSeenType;
 import com.viuniteam.socialviuni.exception.BadRequestException;
 import com.viuniteam.socialviuni.exception.OKException;
@@ -15,6 +14,7 @@ import com.viuniteam.socialviuni.mapper.response.notification.NotificationRespon
 import com.viuniteam.socialviuni.repository.notification.NotificationRepository;
 import com.viuniteam.socialviuni.service.NotificationService;
 import com.viuniteam.socialviuni.service.UserService;
+import com.viuniteam.socialviuni.utils.ListUtils;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -36,14 +36,56 @@ public class NotificationServiceImpl implements NotificationService {
         notificationList.stream().forEach(notification -> {
             NotificationResponse notificationResponse = notificationResponseMapper.from(notification);
 
+            NotificationPost notificationPost = notification.getNotificationPost();
+            NotificationFollow notificationFollow = notification.getNotificationFollow();
             //set notification post
-            NotificationPostResponse notificationPostResponse = NotificationPostResponse.builder()
-                    .postId(notification.getNotificationPost().getId())
-                    .notificationPostType(notification.getNotificationPost().getNotificationPostType())
-                    .build();
-            notificationResponse.setNotificationPostResponse(notificationPostResponse);
+            if(notificationPost!=null){
 
+                NotificationPostResponse notificationPostResponse = NotificationPostResponse.builder()
+                        .postId(notificationPost.getId())
+                        .notificationPostType(notificationPost.getNotificationPostType())
+                        .build();
 
+                // set avatar user like share comment
+                if(notificationPost.getNotificationPostType().equals(NotificationPostType.LIKE)){
+                    Image avatar =ListUtils.getLast(ListUtils.getLast(notificationPost.getPost().getLikes()).getUser().getAvatarImage());
+                    if(avatar!=null)
+                        notificationPostResponse.setAvatar(avatar.getLinkImage());
+                }
+                if(notificationPost.getNotificationPostType().equals(NotificationPostType.COMMENT)){
+                    Image avatar =ListUtils.getLast(ListUtils.getLast(notificationPost.getPost().getComments()).getUser().getAvatarImage());
+                    if(avatar!=null)
+                        notificationPostResponse.setAvatar(avatar.getLinkImage());
+                }
+                if(notificationPost.getNotificationPostType().equals(NotificationPostType.SHARE)){
+                    Image avatar =ListUtils.getLast(ListUtils.getLast(notificationPost.getPost().getShares()).getUser().getAvatarImage());
+                    if(avatar!=null)
+                        notificationPostResponse.setAvatar(avatar.getLinkImage());
+                }
+
+                notificationResponse.setNotificationPostResponse(notificationPostResponse);
+            }
+
+            //set notification follow
+            if(notificationFollow!=null){
+                NotificationFollowResponse notificationFollowResponse = new NotificationFollowResponse();
+                Post postFollow = notificationFollow.getPost();
+                Share shareFollow = notificationFollow.getShare();
+                if(postFollow!=null){    // set post and avatar to follow response
+                    notificationFollowResponse.setPostId(postFollow.getId());
+                    Image avatar = ListUtils.getLast(postFollow.getAuthor().getAvatarImage());
+                    if(avatar!=null)
+                        notificationFollowResponse.setAvatar(avatar.getLinkImage());
+                }
+                if(shareFollow!=null){  // set share and avatar to follow response
+                    notificationFollowResponse.setShareId(shareFollow.getId());
+                    Image avatar = ListUtils.getLast(shareFollow.getUser().getAvatarImage());
+                    if(avatar!=null)
+                        notificationFollowResponse.setAvatar(avatar.getLinkImage());
+                }
+
+                notificationResponse.setNotificationFollowResponse(notificationFollowResponse);
+            }
             notificationResponseList.add(notificationResponse);
         });
         return notificationResponseList;

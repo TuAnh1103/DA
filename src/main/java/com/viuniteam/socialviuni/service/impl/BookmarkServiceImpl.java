@@ -39,7 +39,7 @@ public class BookmarkServiceImpl implements BookmarkService {
         Post post = postRepository.findOneById(postId);
         if(post==null || !post.getAuthor().isActive())
             throw new ObjectNotFoundException("Bài viết không tồn tại");
-        if(postService.checkPrivicy(post,profile))
+        if(postService.checkPrivacy(post,profile))
             return convertToBookmarkResponse(post);
         throw new BadRequestException("Không có quyền lưu");
     }
@@ -73,7 +73,7 @@ public class BookmarkServiceImpl implements BookmarkService {
         List<BookmarkResponse> bookmarkResponses = new ArrayList<>();
         bookmarks.stream().forEach(bookmark -> {
             if(bookmark.getPost().getAuthor().isActive()
-                    && postService.checkPrivicy(bookmark.getPost(),profile)) {
+                    && postService.checkPrivacy(bookmark.getPost(),profile)) {
                 BookmarkResponse bookmarkResponse = bookmarkResponseMapper.from(bookmark);
                 bookmarkResponse.setPostResponse(postResponseUtils.convert(bookmark.getPost()));
                 bookmarkResponses.add(bookmarkResponse);

@@ -11,6 +11,7 @@ import com.viuniteam.socialviuni.exception.OKException;
 import com.viuniteam.socialviuni.exception.ObjectNotFoundException;
 import com.viuniteam.socialviuni.mapper.request.post.PostRequestMapper;
 import com.viuniteam.socialviuni.repository.PostRepository;
+import com.viuniteam.socialviuni.repository.notification.NotificationFollowRepository;
 import com.viuniteam.socialviuni.service.*;
 import com.viuniteam.socialviuni.utils.ShortContent;
 import lombok.AllArgsConstructor;
@@ -33,6 +34,7 @@ public class PostServiceImpl implements PostService {
     private final ImageService imageService;
     private final PostResponseUtils postResponseUtils;
     private final NotificationService notificationService;
+    private final NotificationFollowRepository notificationFollowRepository;
 //    private final HandlingOffensive handlingOffensive;
     @Override
     public PostResponse save(PostSaveRequest postSaveRequest) {
@@ -48,11 +50,15 @@ public class PostServiceImpl implements PostService {
         if(images!=null)
             post.setImages(images);
 
+        Post postSuccess = postRepository.save(post);
+
         //create notification to follower
         List<Follower> followers = author.getFollowers();
-        followers.stream().forEach(follower -> createNotificationToFollower(follower.getUser(),post));
+        followers.stream()
+                .filter(follower -> checkPrivacy(postSuccess, follower.getUser().getId())==true)
+                .forEach(follower -> createNotificationToFollower(follower.getUser(),postSuccess));
 
-        return convertToPostResponse(post);
+        return postResponseUtils.convert(postSuccess);
     }
 
     @Override
@@ -71,7 +77,8 @@ public class PostServiceImpl implements PostService {
             List<Image> images = listImageFromRequest(postSaveRequest);
             if(images!=null)
                 newPost.setImages(images);
-            return convertToPostResponse(newPost);
+            Post postUpdate = postRepository.save(newPost);
+            return postResponseUtils.convert(postUpdate);
         }
         throw new BadRequestException("Không có quyền sửa bài viết");
     }
@@ -96,7 +103,7 @@ public class PostServiceImpl implements PostService {
             Page<Post> posts = postRepository.findAllByAuthorOrderByIdDesc(user,pageable);
             List<PostResponse> postResponseList = new ArrayList<>();
             posts.stream().forEach(post -> {
-                if(checkPrivicy(post,profile)){
+                if(checkPrivacy(post,profile)){
                     PostResponse postResponse = postResponseUtils.convert(post);
                     postResponseList.add(postResponse);
                 }
@@ -109,7 +116,7 @@ public class PostServiceImpl implements PostService {
     @Override
     public PostResponse findOneById(Long id) {
         Post post = postRepository.findOneById(id);
-        if(post == null || !checkPrivicy(post,profile)) throw new ObjectNotFoundException("Bài viết không tồn tại");
+        if(post == null || !checkPrivacy(post,profile)) throw new ObjectNotFoundException("Bài viết không tồn tại");
         return postResponseUtils.convert(post);
     }
 
@@ -132,7 +139,7 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public boolean checkPrivicy(Post post, Profile profile) { // check quyen rieng tu bai viet
+    public boolean checkPrivacy(Post post, Profile profile) { // check quyen rieng tu bai viet
         if(post.getPrivacy() == PrivicyPostType.FRIEND.getCode()){ // quyen rieng tu ban be
             if(friendService.isFriend(post.getAuthor().getId(),profile.getId())
                     || post.getAuthor().getId().equals(profile.getId())
@@ -151,6 +158,19 @@ public class PostServiceImpl implements PostService {
             return true;
     }
 
+    @Override
+    public boolean checkPrivacy(Post post, Long userId) {
+        if(post.getPrivacy() == PrivicyPostType.FRIEND.getCode()){ // quyen rieng tu ban be
+            if(friendService.isFriend(post.getAuthor().getId(),userId))
+                return true;
+            return false;
+        }
+        else if(post.getPrivacy() == PrivicyPostType.ONLY_ME.getCode()) // quyen rieng tu chi minh toi
+            return false;
+        else                // quyen rieng tu cong khai
+            return true;
+    }
+
     public List<Image> listImageFromRequest(PostSaveRequest postSaveRequest){
         if(postSaveRequest.getImageIds()!=null){
             List<Image> images = new ArrayList<>();
@@ -164,16 +184,11 @@ public class PostServiceImpl implements PostService {
         return null;
     }
 
-    public PostResponse convertToPostResponse(Post post){
-        Post postSuccess = postRepository.save(post);
-        return postResponseUtils.convert(postSuccess);
-    }
-
     private void createNotificationToFollower(User user,Post post){
         NotificationFollow notificationFollow = NotificationFollow.builder()
                 .post(post)
                 .build();
-        notificationService.createNotification(user,user.getLastName()+" "+user.getFirstName()+" đã thêm mới bài viết: "
+        notificationService.createNotification(user,post.getAuthor().getLastName()+" "+post.getAuthor().getFirstName()+" đã thêm mới bài viết: "
                 + ShortContent.convertToShortContent(post.getContent()),notificationFollow);
     }
 }

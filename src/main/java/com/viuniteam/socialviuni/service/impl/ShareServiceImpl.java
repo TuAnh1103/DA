@@ -102,7 +102,7 @@ public class ShareServiceImpl implements ShareService {
             Page<Share> shares = shareRepository.findAllByUserOrderByIdDesc(user,pageable);
             List<ShareResponse> shareResponseList = new ArrayList<>();
             shares.stream().forEach(share -> {
-                if(postService.checkPrivicy(share.getPost(),profile)){
+                if(postService.checkPrivacy(share.getPost(),profile)){
                     ShareResponse shareResponse = shareResponseUtils.convert(share);
                     shareResponseList.add(shareResponse);
                 }

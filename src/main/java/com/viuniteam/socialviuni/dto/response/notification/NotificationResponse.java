@@ -20,5 +20,5 @@ public class NotificationResponse extends BaseDTO {
 
     @JsonProperty("notification_follow")
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    private NotificationFollow notificationFollow;
+    private NotificationFollowResponse notificationFollowResponse;
 }
