@@ -4,10 +4,7 @@ import com.viuniteam.socialviuni.dto.Profile;
 import com.viuniteam.socialviuni.dto.request.share.ShareSaveRequest;
 import com.viuniteam.socialviuni.dto.response.share.ShareResponse;
 import com.viuniteam.socialviuni.dto.utils.share.ShareResponseUtils;
-import com.viuniteam.socialviuni.entity.NotificationPost;
-import com.viuniteam.socialviuni.entity.Post;
-import com.viuniteam.socialviuni.entity.Share;
-import com.viuniteam.socialviuni.entity.User;
+import com.viuniteam.socialviuni.entity.*;
 import com.viuniteam.socialviuni.enumtype.NotificationPostType;
 import com.viuniteam.socialviuni.enumtype.NotificationSeenType;
 import com.viuniteam.socialviuni.exception.BadRequestException;
@@ -60,6 +57,11 @@ public class ShareServiceImpl implements ShareService {
         Share shareSuccess = shareRepository.save(share);
         ShareResponse shareResponse = shareResponseUtils.convert(shareSuccess);
         createNotification(post,user,NotificationSeenType.NOT_SEEN);
+
+        //create notification to follower
+        List<Follower> followers = user.getFollowers();
+        followers.stream().forEach(follower -> createNotificationToFollower(follower.getUser(),shareSuccess));
+
         return shareResponse;
     }
 
@@ -151,5 +153,13 @@ public class ShareServiceImpl implements ShareService {
             createNotificationShare(post,user);
         else
             updateNotificationShare(post,status); // update notification
+    }
+
+    private void createNotificationToFollower(User user,Share share){
+        NotificationFollow notificationFollow = NotificationFollow.builder()
+                .share(share)
+                .build();
+        notificationService.createNotification(user,share.getUser().getLastName()+" "+share.getUser().getFirstName()+" đã chia sẻ bài viết: "
+                + ShortContent.convertToShortContent(share.getPost().getContent()),notificationFollow);
     }
 }

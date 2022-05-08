@@ -155,33 +155,5 @@ public class NotificationServiceImpl implements NotificationService {
         notificationRepository.save(newNotification);
     }
 
-    /*public void createNotification(NotificationSaveRequest notificationSaveRequest) {
-//        NotificationPost notificationPost = NotificationPost.builder()
-//                .post(postRepository.findOneById(notificationSaveRequest.getNotificationPostSaveRequests().get(0).getPostId()))
-//                .notificationPostType(notificationSaveRequest.getNotificationPostSaveRequests().get(0).getNotificationPostType())
-//                .build();
-        NotificationPost notificationPost = NotificationPost.builder()
-                .post(postRepository.findOneById(57L))
-                .notificationPostType(NotificationPostType.COMMENT)
-                .build();
-
-        Follower follower = followerRepository.findOneById(17L);
-        System.out.println(follower.getId());
-        NotificationFollow notificationFollow = NotificationFollow.builder()
-                .follower(follower)
-                .build();
-
-//        List<NotificationPost> notificationPostList = new ArrayList<>();
-//        notificationPostList.add(notificationPostRepository.save(notificationPost));
-        Notification notification = Notification.builder()
-//                .notificationPost(notificationPost)
-                .notificationFollow(notificationFollow)
-                .user(userService.findOneById(notificationSaveRequest.getUserId()))
-                .content("hello follower")
-                .status(true)
-                .build();
-        notificationRepository.save(notification);
-    }*/
-
 
 }
