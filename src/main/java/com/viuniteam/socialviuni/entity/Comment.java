@@ -28,6 +28,6 @@ public class Comment extends BaseEntity{
     private List<Image> images = new ArrayList<>();
 
 
-    @OneToOne(cascade = CascadeType.ALL)
-    private Report report;
+    @OneToMany(mappedBy = "comment")
+    private List<Report> reportList;
 }

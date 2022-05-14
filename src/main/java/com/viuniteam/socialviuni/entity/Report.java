@@ -2,12 +2,18 @@ package com.viuniteam.socialviuni.entity;
 
 import com.viuniteam.socialviuni.enumtype.ReportStatusType;
 import com.viuniteam.socialviuni.enumtype.ReportType;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 
 @Entity
 @Data
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class Report extends BaseEntity{
 
     @ManyToOne
@@ -28,9 +34,16 @@ public class Report extends BaseEntity{
     private ReportStatusType status;
 
 
-    @OneToOne(cascade = CascadeType.ALL)
+    @ManyToOne
+    @JoinColumn(name = "comment_id")
     private Comment comment;
 
-    @OneToOne(cascade = CascadeType.ALL)
+    @ManyToOne()
+    @JoinColumn(name = "post_id")
     private Post post;
+
+    @ManyToOne
+    @JoinColumn(name = "share_id")
+    private Share share;
+
 }

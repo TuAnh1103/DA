@@ -1,6 +1,5 @@
 package com.viuniteam.socialviuni.service.impl;
 
-import com.viuniteam.socialviuni.annotation.offensivekeyword.HandlingOffensive;
 import com.viuniteam.socialviuni.dto.Profile;
 import com.viuniteam.socialviuni.dto.request.user.UserRecoveryPasswordRequest;
 import com.viuniteam.socialviuni.dto.request.user.UserSaveRequest;
@@ -20,7 +19,10 @@ import com.viuniteam.socialviuni.mapper.request.user.UserRequestMapper;
 import com.viuniteam.socialviuni.repository.AddressRepository;
 import com.viuniteam.socialviuni.repository.RoleRepository;
 import com.viuniteam.socialviuni.repository.UserRepository;
-import com.viuniteam.socialviuni.service.*;
+import com.viuniteam.socialviuni.service.ImageService;
+import com.viuniteam.socialviuni.service.MailService;
+import com.viuniteam.socialviuni.service.PostService;
+import com.viuniteam.socialviuni.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

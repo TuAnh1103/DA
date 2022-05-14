@@ -49,7 +49,7 @@ public class Post extends BaseEntity{
     @OneToMany(mappedBy = "post",cascade = CascadeType.ALL, orphanRemoval = true)
     private List<NotificationFollow> notificationFollowList;
 
-    @OneToOne(cascade = CascadeType.ALL)
-    private Report report;
+    @OneToMany(mappedBy = "post")
+    private List<Report> reportList;
 
 }

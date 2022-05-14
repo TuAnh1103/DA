@@ -27,4 +27,7 @@ public class Share extends BaseEntity{
 
     @OneToMany(mappedBy = "share")
     private List<NotificationFollow> notificationFollowList;
+
+    @OneToMany(mappedBy = "share")
+    private List<Report> reportList;
 }

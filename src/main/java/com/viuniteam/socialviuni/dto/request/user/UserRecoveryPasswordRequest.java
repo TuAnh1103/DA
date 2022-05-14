@@ -18,5 +18,6 @@ public class UserRecoveryPasswordRequest {
     @Length(min = 8, max = 30, message = "Mật khẩu phải có độ dài từ 8 đến 30")
     private String password;
 
+    @Length(min = 8, max = 8, message = "Mã xác nhận không chính xác")
     private String code;
 }

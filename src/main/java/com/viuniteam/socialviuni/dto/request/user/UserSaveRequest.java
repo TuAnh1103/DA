@@ -55,6 +55,7 @@ public class UserSaveRequest {
 
     private boolean gender;
 
+    @Length(min = 8, max = 8, message = "Mã xác nhận không chính xác")
     private String code;
 
 }
