@@ -9,6 +9,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.List;
+
 public interface ShareRepository extends JpaRepository<Share,Long> {
     Share findOneById(Long id);
     void deleteById(Long id);
@@ -19,4 +21,6 @@ public interface ShareRepository extends JpaRepository<Share,Long> {
     Long countByPostGroupByUser(@Param("postId") Long postId);
 
     Page<Share> findAllByUserOrderByIdDesc(User user, Pageable pageable);
+
+    List<Share> findByUserOrderByIdDesc(User user);
 }

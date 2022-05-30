@@ -18,6 +18,7 @@ import com.viuniteam.socialviuni.service.NotificationService;
 import com.viuniteam.socialviuni.service.PostService;
 import com.viuniteam.socialviuni.service.ShareService;
 import com.viuniteam.socialviuni.service.UserService;
+import com.viuniteam.socialviuni.utils.ListUtils;
 import com.viuniteam.socialviuni.utils.ShortContent;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -112,6 +113,12 @@ public class ShareServiceImpl implements ShareService {
             return new PageImpl<>(shareResponseList, pageable, shareResponseList.size());
         }
         return null;
+    }
+
+    @Override
+    public ShareResponse newShare(Long userId) {
+        Share share = ListUtils.getFirst(shareRepository.findByUserOrderByIdDesc(userService.findOneById(userId)));
+        return share==null ? null : shareResponseUtils.convert(share);
     }
 
 

@@ -13,6 +13,7 @@ import com.viuniteam.socialviuni.mapper.request.post.PostRequestMapper;
 import com.viuniteam.socialviuni.repository.PostRepository;
 import com.viuniteam.socialviuni.repository.notification.NotificationFollowRepository;
 import com.viuniteam.socialviuni.service.*;
+import com.viuniteam.socialviuni.utils.ListUtils;
 import com.viuniteam.socialviuni.utils.ShortContent;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -169,6 +170,12 @@ public class PostServiceImpl implements PostService {
             return false;
         else                // quyen rieng tu cong khai
             return true;
+    }
+
+    @Override
+    public PostResponse newPost(Long userId) {
+        Post post = ListUtils.getFirst(postRepository.findByAuthorOrderByIdDesc(userService.findOneById(userId)));
+        return post==null ? null : postResponseUtils.convert(post);
     }
 
     public List<Image> listImageFromRequest(PostSaveRequest postSaveRequest){

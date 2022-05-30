@@ -3,7 +3,10 @@ package com.viuniteam.socialviuni.controller.api;
 import com.viuniteam.socialviuni.dto.Profile;
 import com.viuniteam.socialviuni.dto.response.follow.FollowResponse;
 import com.viuniteam.socialviuni.service.FollowService;
+import com.viuniteam.socialviuni.utils.PageInfo;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -26,7 +29,9 @@ public class FollowController {
         followService.removeFollow(id);
     }
 
-    @GetMapping("/follower/{id}")
+
+
+    /*@GetMapping("/follower/{id}")
     public List<FollowResponse> getAllFollower(@PathVariable("id") Long id){
         return followService.getAllFollower(id);
     }
@@ -44,7 +49,32 @@ public class FollowController {
     @GetMapping("/following/me")
     public List<FollowResponse> getAllFollowing(){
         return followService.getAllFollowing(profile.getId());
+    }*/
+
+    @PostMapping("/follower/{id}")
+    public Page<FollowResponse> getAllFollower(@PathVariable("id") Long id, @RequestBody PageInfo pageInfo){
+        PageRequest pageRequest = PageRequest.of(pageInfo.getIndex(), pageInfo.getSize());
+        return followService.getAllFollowerByUserId(id,pageRequest);
     }
+
+    @PostMapping("/follower/me")
+    public Page<FollowResponse> getAllFollower(@RequestBody PageInfo pageInfo){
+        PageRequest pageRequest = PageRequest.of(pageInfo.getIndex(), pageInfo.getSize());
+        return followService.getAllFollowerByUserId(profile.getId(),pageRequest);
+    }
+
+    @PostMapping("/following/{id}")
+    public Page<FollowResponse> getAllFollowing(@PathVariable("id") Long id,@RequestBody PageInfo pageInfo){
+        PageRequest pageRequest = PageRequest.of(pageInfo.getIndex(), pageInfo.getSize());
+        return followService.getAllFollowingByUserId(id,pageRequest);
+    }
+
+    @PostMapping("/following/me")
+    public Page<FollowResponse> getAllFollowing(@RequestBody PageInfo pageInfo){
+        PageRequest pageRequest = PageRequest.of(pageInfo.getIndex(), pageInfo.getSize());
+        return followService.getAllFollowingByUserId(profile.getId(),pageRequest);
+    }
+
 
 
 }

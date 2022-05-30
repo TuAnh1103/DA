@@ -16,6 +16,9 @@ import com.viuniteam.socialviuni.service.NotificationService;
 import com.viuniteam.socialviuni.service.UserService;
 import com.viuniteam.socialviuni.utils.ListUtils;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -30,10 +33,10 @@ public class NotificationServiceImpl implements NotificationService {
     private final Profile profile;
 
     @Override
-    public List<NotificationResponse> getAll(User user) {
-        List<Notification> notificationList = notificationRepository.findAllByUser(user);
+    public Page<NotificationResponse> getAll(User user, Pageable pageable) {
+        Page<Notification> notificationPage = notificationRepository.findAllByUserOrderByIdDesc(user, pageable);
         List<NotificationResponse> notificationResponseList = new ArrayList<>();
-        notificationList.stream().forEach(notification -> {
+        notificationPage.stream().forEach(notification -> {
             NotificationResponse notificationResponse = notificationResponseMapper.from(notification);
 
             NotificationPost notificationPost = notification.getNotificationPost();
@@ -88,7 +91,7 @@ public class NotificationServiceImpl implements NotificationService {
             }
             notificationResponseList.add(notificationResponse);
         });
-        return notificationResponseList;
+        return new PageImpl<>(notificationResponseList, pageable, notificationResponseList.size());
     }
 
     @Override

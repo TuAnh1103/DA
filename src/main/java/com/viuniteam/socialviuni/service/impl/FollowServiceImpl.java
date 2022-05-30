@@ -17,6 +17,9 @@ import com.viuniteam.socialviuni.service.FollowService;
 import com.viuniteam.socialviuni.service.FriendService;
 import com.viuniteam.socialviuni.service.UserService;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -130,6 +133,40 @@ public class FollowServiceImpl implements FollowService {
             followResponseList.add(followResponse);
         });
         return followResponseList;
+    }
+
+    @Override
+    public Page<FollowResponse> getAllFollowerByUserId(Long id, Pageable pageable) {
+        User user = userService.findOneById(id);
+        if(user == null)
+            throw new ObjectNotFoundException("Tài khoản không tồn tại");
+        Page<Follower> followerPage = followerRepository.findByUserOrderByIdDesc(user,pageable);
+        List<FollowResponse> followResponseList = new ArrayList<>();
+        followerPage.stream().forEach(
+                follower -> {
+                    FollowResponse followResponse = followerResponseMapper.from(follower);
+                    followResponse.setUserInfoResponse(userInfoResponseMapper.from(follower.getUser()));
+                    followResponseList.add(followResponse);
+                }
+        );
+        return new PageImpl<>(followResponseList, pageable, followResponseList.size());
+    }
+
+    @Override
+    public Page<FollowResponse> getAllFollowingByUserId(Long id, Pageable pageable) {
+        User user = userService.findOneById(id);
+        if(user == null)
+            throw new ObjectNotFoundException("Tài khoản không tồn tại");
+        Page<Following> followingPage = followingRepository.findByUserOrderByIdDesc(user,pageable);
+        List<FollowResponse> followResponseList = new ArrayList<>();
+        followingPage.stream().forEach(
+                following -> {
+                    FollowResponse followResponse = followingResponseMapper.from(following);
+                    followResponse.setUserInfoResponse(userInfoResponseMapper.from(following.getUser()));
+                    followResponseList.add(followResponse);
+                }
+        );
+        return new PageImpl<>(followResponseList,pageable,followResponseList.size());
     }
 
 

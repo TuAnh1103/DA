@@ -10,8 +10,12 @@ import com.viuniteam.socialviuni.repository.BrowserRepository;
 import com.viuniteam.socialviuni.service.BrowserService;
 import com.viuniteam.socialviuni.service.UserService;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -35,7 +39,15 @@ public class BrowserServiceImpl implements BrowserService {
 
 
     @Override
-    public List<BrowserResponse> getAllByUser(Long userId) {
-        return browserResponseMapper.from(browserRepository.findAllByUser(userService.findOneById(userId)));
+    public Page<BrowserResponse> getAllByUser(Long userId, Pageable pageable) {
+        Page<Browser> browserPage = browserRepository.findByUserOrderByIdDesc(userService.findOneById(userId),pageable);
+        List<BrowserResponse> browserResponseList = new ArrayList<>();
+        browserPage.stream().forEach(
+                browser -> {
+                    BrowserResponse browserResponse = browserResponseMapper.from(browser);
+                    browserResponseList.add(browserResponse);
+                }
+        );
+        return new PageImpl<>(browserResponseList, pageable, browserResponseList.size());
     }
 }

@@ -4,8 +4,10 @@ import com.viuniteam.socialviuni.dto.Profile;
 import com.viuniteam.socialviuni.dto.response.notification.NotificationResponse;
 import com.viuniteam.socialviuni.service.NotificationService;
 import com.viuniteam.socialviuni.service.UserService;
+import com.viuniteam.socialviuni.utils.PageInfo;
 import lombok.AllArgsConstructor;
-import org.springframework.security.core.parameters.P;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -18,10 +20,12 @@ public class NotificationController {
     private final UserService userService;
     private final Profile profile;
 
-    @GetMapping
-    public List<NotificationResponse> getAll(){
-        return notificationService.getAll(userService.findOneById(profile.getId()));
+    @PostMapping
+    public Page<NotificationResponse> getAll(@RequestBody PageInfo pageInfo){
+        PageRequest pageRequest = PageRequest.of(pageInfo.getIndex(), pageInfo.getSize());
+        return notificationService.getAll(userService.findOneById(profile.getId()), pageRequest);
     }
+
     @DeleteMapping("/{id}")
     public void delete(@PathVariable("id") Long id){
         notificationService.delete(id);

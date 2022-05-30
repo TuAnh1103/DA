@@ -20,4 +20,5 @@ public interface PostService {
     boolean myPost(Long postId);
     boolean checkPrivacy(Post post, Profile profile);
     boolean checkPrivacy(Post post, Long userId);
+    PostResponse newPost(Long userId);
 }

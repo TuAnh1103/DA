@@ -5,11 +5,13 @@ import com.viuniteam.socialviuni.entity.NotificationFollow;
 import com.viuniteam.socialviuni.entity.NotificationPost;
 import com.viuniteam.socialviuni.entity.User;
 import com.viuniteam.socialviuni.enumtype.NotificationSeenType;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
 public interface NotificationService {
-    List<NotificationResponse> getAll(User user);
+    Page<NotificationResponse> getAll(User user, Pageable pageable);
     void delete(Long id);
     void seenNotification();
     void readNotification(Long id);

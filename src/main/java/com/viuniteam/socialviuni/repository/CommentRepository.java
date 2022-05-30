@@ -17,14 +17,14 @@ public interface CommentRepository extends JpaRepository<Comment,Long> {
     Comment findTop1ByPostOrderByCreatedDateDesc(Post post);
     Long countByPost(Post post);
 
-    @Query(value = "select count(*) from (select count(cmt.id) from Comment cmt where cmt.post_id=:postId group by cmt.user_id) t", nativeQuery = true) //select count (cmt.id) from Comment cmt where cmt.post=:post group by cmt.user
+    @Query(value = "select count(*) from (select count(cmt.id) from comment cmt where cmt.post_id=:postId group by cmt.user_id) t", nativeQuery = true) //select count (cmt.id) from Comment cmt where cmt.post=:post group by cmt.user
     Long countByPostGroupByUser(@Param("postId") Long postId);
 
     Page<Comment> findAllByPostOrderByIdDesc(Post post, Pageable pageable);
     @Modifying
-    @Query(value = "delete Comment from Comment comment" +
-            " inner join Post post on post.id = comment.post_id" +
-            " inner join User author on author.id = post.user_id"+
+    @Query(value = "delete comment from comment comment" +
+            " inner join post post on post.id = comment.post_id" +
+            " inner join user author on author.id = post.user_id"+
             " where post.id = :postId and comment.user_id = :userId" +
             " and comment.id = :commentId and author.active = true", nativeQuery = true)
     void deleteComment(@Param("postId") Long postId, @Param("userId") Long userId, @Param("commentId") Long commentId);

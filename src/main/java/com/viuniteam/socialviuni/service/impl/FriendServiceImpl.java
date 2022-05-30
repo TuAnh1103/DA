@@ -12,6 +12,9 @@ import com.viuniteam.socialviuni.repository.FriendRepository;
 import com.viuniteam.socialviuni.service.FriendService;
 import com.viuniteam.socialviuni.service.UserService;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -115,6 +118,23 @@ public class FriendServiceImpl implements FriendService {
             friendResponseList.add(friendResponse);
         });
         return friendResponseList;
+    }
+
+    @Override
+    public Page<FriendResponse> getAllByUserId(Long userId, Pageable pageable) {
+        User user = userService.findOneById(userId);
+        if(user == null)
+            throw new ObjectNotFoundException("Người dùng không tồn tại");
+        Page<Friend> friends = friendRepository.findByUserOrderByIdDesc(user,pageable);
+        List<FriendResponse> friendResponseList = new ArrayList<>();
+        friends.stream().forEach(
+                friend -> {
+                    FriendResponse friendResponse = friendResponseMapper.from(friend);
+                    friendResponse.setUserInfoResponse(userInfoResponseMapper.from(friend.getUser()));
+                    friendResponseList.add(friendResponse);
+                }
+        );
+        return new PageImpl<>(friendResponseList, pageable, friendResponseList.size());
     }
 
     @Override

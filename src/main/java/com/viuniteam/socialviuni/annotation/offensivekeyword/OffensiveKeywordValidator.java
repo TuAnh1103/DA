@@ -12,6 +12,8 @@ public class OffensiveKeywordValidator implements ConstraintValidator<ValidOffen
 
     @Override
     public boolean isValid(String value, ConstraintValidatorContext constraintValidatorContext) {
+        if(value==null)
+            return true;
         return !offensiveKeywordService.isExist(value.toLowerCase());
     }
 }

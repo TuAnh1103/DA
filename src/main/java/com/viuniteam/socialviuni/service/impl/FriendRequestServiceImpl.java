@@ -14,10 +14,14 @@ import com.viuniteam.socialviuni.service.FriendRequestService;
 import com.viuniteam.socialviuni.service.FriendService;
 import com.viuniteam.socialviuni.service.UserService;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
@@ -142,5 +146,23 @@ public class FriendRequestServiceImpl implements FriendRequestService {
             friendRequestResponseList.add(friendRequestResponse);
         });
         return friendRequestResponseList;
+    }
+
+    @Override
+    public Page<FriendRequestResponse> getAllByUser(Pageable pageable) {
+        User user = userService.findOneById(profile.getId());
+        if(user == null)
+            throw new ObjectNotFoundException("Người dùng không tồn tại");
+        List<FriendRequestResponse> friendRequestResponseList = new ArrayList<>();
+        Page<FriendRequest> friendRequestPage = friendRequestRepository.findByUser(user.getId(),pageable);
+
+        friendRequestPage.stream().forEach(
+                friendRequest -> {
+                    FriendRequestResponse friendRequestResponse = friendRequestResponseMapper.from(friendRequest);
+                    friendRequestResponse.setUserInfoResponse(userInfoResponseMapper.from(friendRequest.getUser()));
+                    friendRequestResponseList.add(friendRequestResponse);
+                }
+        );
+        return new PageImpl<>(friendRequestResponseList, pageable, friendRequestResponseList.size());
     }
 }
