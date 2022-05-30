@@ -39,7 +39,7 @@ public class ReportController {
         reportService.removeReport(reportId);
     }
 
-    @GetMapping
+    @PostMapping
     public Page<ReportResponse> getAllByUserSource(@RequestBody PageInfo pageInfo){
         PageRequest pageRequest = PageRequest.of(pageInfo.getIndex(), pageInfo.getSize());
         return reportService.getAllByUserSource(userService.findOneById(profile.getId()),pageRequest);

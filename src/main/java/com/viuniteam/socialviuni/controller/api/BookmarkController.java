@@ -26,7 +26,7 @@ public class BookmarkController {
         bookmarkService.remove(bookmarkId);
     }
 
-    @GetMapping
+    @PostMapping
     public Page<BookmarkResponse> findAll(@RequestBody PageInfo pageInfo){
         PageRequest pageRequest = PageRequest.of(pageInfo.getIndex(), pageInfo.getSize());
         return bookmarkService.findAll(pageRequest);

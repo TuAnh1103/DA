@@ -26,5 +26,4 @@ public class AdminReportController {
         }
         throw new ObjectNotFoundException("Tài khoản không tồn tại");
     }
-    
 }

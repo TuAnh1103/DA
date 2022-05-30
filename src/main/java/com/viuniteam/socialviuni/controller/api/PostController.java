@@ -43,14 +43,14 @@ public class PostController {
         return postService.findOneById(postId);
     }
 
-    @GetMapping("/all/{userId}")
-    public Page<PostResponse> getAllPage(@PathVariable("userId") Long userId, @RequestBody PageInfo pageInfo){
+    @PostMapping("/all/{userId}")
+    public Page<PostResponse> getAllByUser(@PathVariable("userId") Long userId, @RequestBody PageInfo pageInfo){
         PageRequest pageRequest = PageRequest.of(pageInfo.getIndex(), pageInfo.getSize());
         return postService.listPost(userId,pageRequest);
     }
 
-    @GetMapping("/all/me")
-    public Page<PostResponse> getAll(@RequestBody PageInfo pageInfo){
+    @PostMapping("/all/me")
+    public Page<PostResponse> getAllByMe(@RequestBody PageInfo pageInfo){
         PageRequest pageRequest = PageRequest.of(pageInfo.getIndex(), pageInfo.getSize());
         return postService.listPost(profile.getId(),pageRequest);
     }

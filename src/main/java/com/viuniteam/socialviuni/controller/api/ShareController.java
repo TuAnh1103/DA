@@ -34,14 +34,14 @@ public class ShareController {
         return shareService.update(shareSaveRequest,shareId);
     }
 
-    @GetMapping("/all/{userId}")
-    public Page<ShareResponse> getAllPage(@PathVariable("userId") Long userId, @RequestBody PageInfo pageInfo){
+    @PostMapping("/all/{userId}")
+    public Page<ShareResponse> getAllByUser(@PathVariable("userId") Long userId, @RequestBody PageInfo pageInfo){
         PageRequest pageRequest = PageRequest.of(pageInfo.getIndex(), pageInfo.getSize());
         return shareService.listShare(userId,pageRequest);
     }
 
-    @GetMapping("/all/me")
-    public Page<ShareResponse> getAll(@RequestBody PageInfo pageInfo){
+    @PostMapping("/all/me")
+    public Page<ShareResponse> getAllByMe(@RequestBody PageInfo pageInfo){
         PageRequest pageRequest = PageRequest.of(pageInfo.getIndex(), pageInfo.getSize());
         return shareService.listShare(profile.getId(),pageRequest);
     }

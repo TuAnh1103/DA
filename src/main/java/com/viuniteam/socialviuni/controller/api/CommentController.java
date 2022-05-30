@@ -35,7 +35,7 @@ public class CommentController {
         commentService.delete(commentId);
     }
 
-    @GetMapping("/all/{postId}")
+    @PostMapping("/all/{postId}")
     public Page<CommentResponse> getAll(@PathVariable("postId") Long postId, @RequestBody PageInfo pageInfo){
         PageRequest pageRequest = PageRequest.of(pageInfo.getIndex(), pageInfo.getSize());
         return commentService.findAllByPost(postId,pageRequest);
