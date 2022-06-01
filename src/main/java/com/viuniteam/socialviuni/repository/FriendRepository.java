@@ -13,7 +13,16 @@ import javax.transaction.Transactional;
 @Transactional
 public interface FriendRepository extends JpaRepository<Friend,Long> {
 
+
+    @Modifying
+    @Query(value = "delete from user_friends where user_id=?1 and friends_id = ?2",nativeQuery = true)
+    void deleteUserFriendByUserIdAndFriendId(Long userId, Long friendId);
+
+
+    @Modifying
+    @Query(value = "delete from friend where id=?1",nativeQuery = true)
     void deleteFriendById(Long id);
+
 
     @Modifying
     @Query(value = "delete from user_friends where friends_id = ?1",nativeQuery = true)

@@ -2,6 +2,9 @@ package com.viuniteam.socialviuni.repository;
 
 import com.viuniteam.socialviuni.entity.Address;
 import com.viuniteam.socialviuni.entity.User;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import javax.transaction.Transactional;
@@ -29,5 +32,7 @@ public interface UserRepository extends JpaRepository<User,Long> {
     List<User> findByHomeTown(Address address);
 
     List<User> findByCurrentCity(Address address);
+
+    Page<User> findAll(Specification specification, Pageable pageable);
 
 }

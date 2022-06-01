@@ -1,6 +1,7 @@
 package com.viuniteam.socialviuni.service.impl;
 
 import com.viuniteam.socialviuni.dto.Profile;
+import com.viuniteam.socialviuni.dto.request.user.UserFilterRequest;
 import com.viuniteam.socialviuni.dto.request.user.UserRecoveryPasswordRequest;
 import com.viuniteam.socialviuni.dto.request.user.UserSaveRequest;
 import com.viuniteam.socialviuni.dto.request.user.UserUpdateInfoRequest;
@@ -19,12 +20,15 @@ import com.viuniteam.socialviuni.mapper.request.user.UserRequestMapper;
 import com.viuniteam.socialviuni.repository.AddressRepository;
 import com.viuniteam.socialviuni.repository.RoleRepository;
 import com.viuniteam.socialviuni.repository.UserRepository;
+import com.viuniteam.socialviuni.repository.specification.UserSpecification;
 import com.viuniteam.socialviuni.service.ImageService;
 import com.viuniteam.socialviuni.service.MailService;
 import com.viuniteam.socialviuni.service.PostService;
 import com.viuniteam.socialviuni.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -171,6 +175,22 @@ public class UserServiceImpl implements UserService {
         */
         Page<User> users = userRepository.findAll(pageable.previousOrFirst());
         return users.map(userInfoResponseUtils::convert);
+    }
+
+
+    @Override
+    public Page<UserInfoResponse> search(UserFilterRequest userFilterRequest) {
+        PageRequest pageRequest = PageRequest.of(userFilterRequest.getIndex(), userFilterRequest.getSize());
+        Page<User> users = userRepository.findAll(UserSpecification.filterAll(userFilterRequest),pageRequest);
+        if(isAdmin(profile))
+            return users.map(userInfoResponseUtils::convert);
+        else {
+            List<UserInfoResponse> userInfoResponseList =  users.stream()
+                    .filter(user -> user.isActive())
+                    .map(userInfoResponseUtils::convert)
+                    .collect(Collectors.toList());
+            return new PageImpl<>(userInfoResponseList,pageRequest, userInfoResponseList.size());
+        }
     }
 
     @Override

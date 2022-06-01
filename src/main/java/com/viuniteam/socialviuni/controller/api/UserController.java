@@ -1,22 +1,14 @@
 package com.viuniteam.socialviuni.controller.api;
 
 import com.viuniteam.socialviuni.dto.Profile;
-import com.viuniteam.socialviuni.dto.request.browser.BrowserSaveRequest;
+import com.viuniteam.socialviuni.dto.request.user.UserFilterRequest;
 import com.viuniteam.socialviuni.dto.request.user.UserUpdateInfoRequest;
 import com.viuniteam.socialviuni.dto.response.user.UserInfoResponse;
-import com.viuniteam.socialviuni.entity.User;
-import com.viuniteam.socialviuni.service.BrowserService;
 import com.viuniteam.socialviuni.service.UserService;
-import com.viuniteam.socialviuni.utils.PageInfo;
 import lombok.AllArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
 @RestController
@@ -45,4 +37,8 @@ public class UserController {
         userService.updateInfo(userUpdateInfoRequest);
     }
 
+    @PostMapping("/search")
+    public Page<UserInfoResponse> search(@RequestBody UserFilterRequest userFilterRequest){
+        return userService.search(userFilterRequest);
+    }
 }

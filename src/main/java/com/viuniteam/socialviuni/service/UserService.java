@@ -1,6 +1,7 @@
 package com.viuniteam.socialviuni.service;
 
 import com.viuniteam.socialviuni.dto.Profile;
+import com.viuniteam.socialviuni.dto.request.user.UserFilterRequest;
 import com.viuniteam.socialviuni.dto.request.user.UserRecoveryPasswordRequest;
 import com.viuniteam.socialviuni.dto.request.user.UserSaveRequest;
 import com.viuniteam.socialviuni.dto.request.user.UserUpdateInfoRequest;
@@ -20,6 +21,9 @@ public interface UserService extends UserDetailsService {
     UserInfoResponse findById(Long id);
     UserInfoResponse findByUsername(String username);
     Page<UserInfoResponse> findAll(Pageable pageable);
+
+    Page<UserInfoResponse> search(UserFilterRequest userFilterRequest);
+
     User findOneById(Long id);
     User findOneByUsername(String username);
     User findByEmail(String email);

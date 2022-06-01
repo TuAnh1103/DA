@@ -80,7 +80,7 @@ public class FriendServiceImpl implements FriendService {
 
             List<Friend> friendSourceList = userSource.getFriends();
             List<Friend> friendTargetList = userTarget.getFriends();
-            for(Friend friend : friendSourceList){
+            /*for(Friend friend : friendSourceList){
                 if(friend.getUser().getId() == userTarget.getId()){
                     friendSourceList.remove(friend);
                     userSource.setFriends(friendSourceList);
@@ -94,6 +94,21 @@ public class FriendServiceImpl implements FriendService {
                     friendTargetList.remove(friend);
                     userTarget.setFriends(friendTargetList);
                     userService.update(userTarget);
+                    friendRepository.deleteFriendById(friend.getId());
+                    break;
+                }
+            }*/
+
+            for(Friend friend : friendSourceList){
+                if(friend.getUser().getId() == userTarget.getId()){
+                    friendRepository.deleteUserFriendByUserIdAndFriendId(idSource,friend.getId());
+                    friendRepository.deleteFriendById(friend.getId());
+                    break;
+                }
+            }
+            for(Friend friend : friendTargetList){
+                if(friend.getUser().getId() == userSource.getId()){
+                    friendRepository.deleteUserFriendByUserIdAndFriendId(idTarget,friend.getId());
                     friendRepository.deleteFriendById(friend.getId());
                     break;
                 }

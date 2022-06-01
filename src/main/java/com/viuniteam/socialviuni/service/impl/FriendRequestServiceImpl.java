@@ -53,15 +53,35 @@ public class FriendRequestServiceImpl implements FriendRequestService {
                 User userTarget = userService.findOneById(idTarget);
                 if(this.isFriendRequest(idTarget,idSource)){ // neu user1 add user2 roi nhung user2 tiep tuc add user 1 thi cho ca 2 thanh ban luon
                     List<FriendRequest> friendRequestSourceList = userSource.getFriendRequests();
-                    for(FriendRequest friendRequest : friendRequestSourceList){
+
+                    // xoa yeu cau ket ban khi ca 2 deu add nhau
+                    /*for(FriendRequest friendRequest : friendRequestSourceList){
                         if(friendRequest.getUser().getId() == userTarget.getId()){
-                            friendRequestSourceList.remove(friendRequest);
-                            userSource.setFriendRequests(friendRequestSourceList);
-                            userService.update(userSource);
-                            friendRequestRepository.deleteFriendRequestById(friendRequest.getId());
-                            break;
+                            try {
+                                friendRequestSourceList.remove(friendRequest);
+                                userSource.setFriendRequests(friendRequestSourceList);
+                                userService.update(userSource);
+                                friendRequestRepository.deleteFriendRequestById(friendRequest.getId());
+                                break;
+                            }
+                            catch (Exception e){
+                                break;
+                            }
+                        }
+                    }*/
+
+                    for(FriendRequest friendRequest : friendRequestSourceList) {
+                        if (friendRequest.getUser().getId() == userTarget.getId()) {
+                            try {
+                                friendRequestRepository.deleteUserFriendRequestByUserIdAndFriendRequestId(userSource.getId(), friendRequest.getId());
+                                friendRequestRepository.deleteFriendRequestById(friendRequest.getId());
+                                break;
+                            } catch (Exception e) {
+                                break;
+                            }
                         }
                     }
+
                     friendService.addFriend(idSource,idTarget);
                     throw new OKException("Chấp nhận lời mời kết bạn thành công");
                 }
@@ -93,7 +113,7 @@ public class FriendRequestServiceImpl implements FriendRequestService {
                 List<FriendRequest> friendRequestSourceList = userSource.getFriendRequests();
                 List<FriendRequest> friendRequestTargetList = userTarget.getFriendRequests();
 
-                for(FriendRequest friendRequest : friendRequestSourceList){
+                /*for(FriendRequest friendRequest : friendRequestSourceList){
                     if(friendRequest.getUser().getId() == userTarget.getId()) {
                         friendRequestSourceList.remove(friendRequest);
                         userSource.setFriendRequests(friendRequestSourceList);
@@ -107,6 +127,21 @@ public class FriendRequestServiceImpl implements FriendRequestService {
                         friendRequestTargetList.remove(friendRequest);
                         userTarget.setFriendRequests(friendRequestTargetList);
                         userService.update(userTarget);
+                        friendRequestRepository.deleteFriendRequestById(friendRequest.getId());
+                        break;
+                    }
+                }*/
+
+                for(FriendRequest friendRequest : friendRequestSourceList){
+                    if(friendRequest.getUser().getId() == userTarget.getId()) {
+                        friendRequestRepository.deleteUserFriendRequestByUserIdAndFriendRequestId(idSource,friendRequest.getId());
+                        friendRequestRepository.deleteFriendRequestById(friendRequest.getId());
+                        break;
+                    }
+                }
+                for(FriendRequest friendRequest : friendRequestTargetList){
+                    if(friendRequest.getUser().getId() == userSource.getId()) {
+                        friendRequestRepository.deleteUserFriendRequestByUserIdAndFriendRequestId(idTarget,friendRequest.getId());
                         friendRequestRepository.deleteFriendRequestById(friendRequest.getId());
                         break;
                     }

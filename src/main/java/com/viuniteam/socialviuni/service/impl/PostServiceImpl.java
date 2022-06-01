@@ -1,6 +1,7 @@
 package com.viuniteam.socialviuni.service.impl;
 
 import com.viuniteam.socialviuni.dto.Profile;
+import com.viuniteam.socialviuni.dto.request.post.PostFilterRequest;
 import com.viuniteam.socialviuni.dto.request.post.PostSaveRequest;
 import com.viuniteam.socialviuni.dto.response.post.PostResponse;
 import com.viuniteam.socialviuni.dto.utils.post.PostResponseUtils;
@@ -12,17 +13,20 @@ import com.viuniteam.socialviuni.exception.ObjectNotFoundException;
 import com.viuniteam.socialviuni.mapper.request.post.PostRequestMapper;
 import com.viuniteam.socialviuni.repository.PostRepository;
 import com.viuniteam.socialviuni.repository.notification.NotificationFollowRepository;
+import com.viuniteam.socialviuni.repository.specification.PostSpecification;
 import com.viuniteam.socialviuni.service.*;
 import com.viuniteam.socialviuni.utils.ListUtils;
 import com.viuniteam.socialviuni.utils.ShortContent;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
@@ -97,7 +101,7 @@ public class PostServiceImpl implements PostService {
 
 
     @Override
-    public Page<PostResponse> listPost(Long userId, Pageable pageable) {
+    public Page<PostResponse> findAllByUserId(Long userId, Pageable pageable) {
         User user = userService.findOneById(userId);
         if(user==null) throw new ObjectNotFoundException("Tài khoản không tồn tại");
         if(user.isActive() || (!user.isActive() && userService.isAdmin(profile))){ // tai khoan hoat dong, neu k hoat dong thi chi admin moi dc xem
@@ -112,6 +116,21 @@ public class PostServiceImpl implements PostService {
             return new PageImpl<>(postResponseList, pageable, postResponseList.size());
         }
         return null;
+    }
+
+    @Override
+    public Page<PostResponse> search(PostFilterRequest postFilterRequest) {
+        PageRequest pageRequest = PageRequest.of(postFilterRequest.getIndex(), postFilterRequest.getSize());
+        Page<Post> posts = postRepository.findAll(PostSpecification.filterAll(postFilterRequest),pageRequest);
+        if(userService.isAdmin(profile))
+            return posts.map(postResponseUtils::convert);
+        else{
+            List<PostResponse> postResponseList = posts.stream()
+                    .filter(post -> checkPrivacy(post,profile) || myPost(profile.getId()))
+                    .map(postResponseUtils::convert)
+                    .collect(Collectors.toList());
+            return new PageImpl<>(postResponseList,pageRequest,postResponseList.size());
+        }
     }
 
     @Override

@@ -1,22 +1,17 @@
 package com.viuniteam.socialviuni.controller.api;
 
 import com.viuniteam.socialviuni.dto.Profile;
+import com.viuniteam.socialviuni.dto.request.post.PostFilterRequest;
 import com.viuniteam.socialviuni.dto.request.post.PostSaveRequest;
 import com.viuniteam.socialviuni.dto.response.post.PostResponse;
-import com.viuniteam.socialviuni.repository.PostRepository;
 import com.viuniteam.socialviuni.service.PostService;
 import com.viuniteam.socialviuni.utils.PageInfo;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.List;
 
 @RestController
 @RequestMapping("/post")
@@ -46,13 +41,17 @@ public class PostController {
     @PostMapping("/all/{userId}")
     public Page<PostResponse> getAllByUser(@PathVariable("userId") Long userId, @RequestBody PageInfo pageInfo){
         PageRequest pageRequest = PageRequest.of(pageInfo.getIndex(), pageInfo.getSize());
-        return postService.listPost(userId,pageRequest);
+        return postService.findAllByUserId(userId,pageRequest);
     }
 
     @PostMapping("/all/me")
     public Page<PostResponse> getAllByMe(@RequestBody PageInfo pageInfo){
         PageRequest pageRequest = PageRequest.of(pageInfo.getIndex(), pageInfo.getSize());
-        return postService.listPost(profile.getId(),pageRequest);
+        return postService.findAllByUserId(profile.getId(),pageRequest);
     }
 
+    @PostMapping("/search")
+    public Page<PostResponse> search(@RequestBody PostFilterRequest postFilterRequest){
+        return postService.search(postFilterRequest);
+    }
 }
