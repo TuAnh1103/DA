@@ -5,6 +5,8 @@ import com.viuniteam.socialviuni.dto.response.follow.FollowResponse;
 import com.viuniteam.socialviuni.entity.Follower;
 import com.viuniteam.socialviuni.entity.Following;
 import com.viuniteam.socialviuni.entity.User;
+import com.viuniteam.socialviuni.entity.mapper.UserFollowers;
+import com.viuniteam.socialviuni.entity.mapper.UserFollowings;
 import com.viuniteam.socialviuni.exception.BadRequestException;
 import com.viuniteam.socialviuni.exception.OKException;
 import com.viuniteam.socialviuni.exception.ObjectNotFoundException;
@@ -38,7 +40,7 @@ public class FollowServiceImpl implements FollowService {
     private final FollowingResponseMapper followingResponseMapper;
     @Override
     public void addFollow(Long idTarget) {
-        Long idSource = profile.getId();
+        /*Long idSource = profile.getId();
         if(friendService.itIsMe(profile.getId(),idTarget))
             throw new BadRequestException("Không thể follow chính mình");
         if(this.isFollowing(idSource,idTarget))
@@ -65,8 +67,30 @@ public class FollowServiceImpl implements FollowService {
         userService.update(userSource);
         userService.update(userTarget);
 
-        throw new OKException("Follow thành công");
+        throw new OKException("Follow thành công");*/
 
+
+
+        Long idSource = profile.getId();
+        if(friendService.itIsMe(profile.getId(),idTarget))
+            throw new BadRequestException("Không thể follow chính mình");
+        if(this.isFollowing(idSource,idTarget))
+            throw new BadRequestException("Đã follow rồi");
+
+        User userSource = userService.findOneById(idSource);
+        User userTarget = userService.findOneById(idTarget);
+
+        Following following = new Following();
+        following.setUser(userTarget);
+        Following followingSave = followingRepository.save(following);
+        followingRepository.insertUserFollowing(idSource,followingSave.getId());
+
+        Follower follower = new Follower();
+        follower.setUser(userSource);
+        Follower followerSave = followerRepository.save(follower);
+        followerRepository.insertUserFollower(idTarget,followerSave.getId());
+
+        throw new OKException("Follow thành công");
     }
 
     @Override
@@ -83,7 +107,7 @@ public class FollowServiceImpl implements FollowService {
         List<Follower> followerTargetList = userTarget.getFollowers();
 
 
-        for(Following following : followingSourceList){
+        /*for(Following following : followingSourceList){
             if(userTarget.getId()== following.getUser().getId()){
                 followingSourceList.remove(following);
                 userSource.setFollowings(followingSourceList);
@@ -100,7 +124,23 @@ public class FollowServiceImpl implements FollowService {
                 followerRepository.deleteById(follower.getId());
                 break;
             }
+        }*/
+
+        for(Following following : followingSourceList){
+            if(userTarget.getId()== following.getUser().getId()){
+                followingRepository.deleteUserFollowingByUserIdAndFollowingId(idSource,following.getId());
+                followingRepository.deleteFollowingById(following.getId());
+                break;
+            }
         }
+        for(Follower follower : followerTargetList){
+            if(userSource.getId()== follower.getUser().getId()){
+                followerRepository.deleteUserFollowerByUserIdAndFollowerId(idTarget,follower.getId());
+                followerRepository.deleteFollowerById(follower.getId());
+                break;
+            }
+        }
+
         throw new OKException("Hủy follow thành công");
     }
 
@@ -140,12 +180,24 @@ public class FollowServiceImpl implements FollowService {
         User user = userService.findOneById(id);
         if(user == null)
             throw new ObjectNotFoundException("Tài khoản không tồn tại");
-        Page<Follower> followerPage = followerRepository.findByUserOrderByIdDesc(user,pageable);
+        /*Page<Follower> followerPage = followerRepository.findByUserOrderByIdDesc(user,pageable);
         List<FollowResponse> followResponseList = new ArrayList<>();
         followerPage.stream().forEach(
                 follower -> {
                     FollowResponse followResponse = followerResponseMapper.from(follower);
                     followResponse.setUserInfoResponse(userInfoResponseMapper.from(follower.getUser()));
+                    followResponseList.add(followResponse);
+                }
+        );
+        return new PageImpl<>(followResponseList, pageable, followResponseList.size());*/
+        Page<UserFollowers> followerPage = followerRepository.findByUserOrderByIdDesc(user.getId(),pageable);
+        List<FollowResponse> followResponseList = new ArrayList<>();
+        followerPage.stream().forEach(
+                follower -> {
+                    FollowResponse followResponse = new FollowResponse();
+                    followResponse.setId(follower.getId());
+                    followResponse.setCreatedDate(follower.getCreatedDate());
+                    followResponse.setUserInfoResponse(userInfoResponseMapper.from(userService.findOneById(follower.getUserId())));
                     followResponseList.add(followResponse);
                 }
         );
@@ -157,12 +209,26 @@ public class FollowServiceImpl implements FollowService {
         User user = userService.findOneById(id);
         if(user == null)
             throw new ObjectNotFoundException("Tài khoản không tồn tại");
-        Page<Following> followingPage = followingRepository.findByUserOrderByIdDesc(user,pageable);
+        /*Page<Following> followingPage = followingRepository.findByUserOrderByIdDesc(user,pageable);
         List<FollowResponse> followResponseList = new ArrayList<>();
         followingPage.stream().forEach(
                 following -> {
                     FollowResponse followResponse = followingResponseMapper.from(following);
                     followResponse.setUserInfoResponse(userInfoResponseMapper.from(following.getUser()));
+                    System.out.println(following.getId());
+                    followResponseList.add(followResponse);
+                }
+        );
+        return new PageImpl<>(followResponseList,pageable,followResponseList.size());*/
+
+        Page<UserFollowings> followingPage = followingRepository.findByUserOrderByIdDesc(user.getId(),pageable);
+        List<FollowResponse> followResponseList = new ArrayList<>();
+        followingPage.stream().forEach(
+                following -> {
+                    FollowResponse followResponse = new FollowResponse();
+                    followResponse.setId(following.getId());
+                    followResponse.setCreatedDate(following.getCreatedDate());
+                    followResponse.setUserInfoResponse(userInfoResponseMapper.from(userService.findOneById(following.getUserId())));
                     followResponseList.add(followResponse);
                 }
         );

@@ -3,6 +3,7 @@ package com.viuniteam.socialviuni.service.impl;
 import com.viuniteam.socialviuni.dto.response.friend.FriendResponse;
 import com.viuniteam.socialviuni.entity.Friend;
 import com.viuniteam.socialviuni.entity.User;
+import com.viuniteam.socialviuni.entity.mapper.UserFriends;
 import com.viuniteam.socialviuni.exception.BadRequestException;
 import com.viuniteam.socialviuni.exception.OKException;
 import com.viuniteam.socialviuni.exception.ObjectNotFoundException;
@@ -30,10 +31,6 @@ public class FriendServiceImpl implements FriendService {
     private final FriendResponseMapper friendResponseMapper;
     private final UserInfoResponseMapper userInfoResponseMapper;
 
-    @Override
-    public void save(Friend friend) {
-        friendRepository.save(friend);
-    }
 
     @Override
     public void addFriend(Long idSource, Long idTarget) {
@@ -46,13 +43,14 @@ public class FriendServiceImpl implements FriendService {
         else {
             User userSource = userService.findOneById(idSource);
             User userTarget = userService.findOneById(idTarget);
+
+            /*
             List<Friend> friendSourceList = userSource.getFriends();
             List<Friend> friendTargetList = userTarget.getFriends();
-
             // add friend target to list
             Friend friendSource = new Friend();
             friendSource.setUser(userTarget);
-            this.save(friendSource);
+            friendRepository.save(friendSource);
             friendSourceList.add(friendSource);
             userSource.setFriends(friendSourceList);
             userService.update(userSource);
@@ -60,12 +58,24 @@ public class FriendServiceImpl implements FriendService {
             // add friend source to list
             Friend friendTarget = new Friend();
             friendTarget.setUser(userSource);
-            this.save(friendTarget);
+            friendRepository.save(friendTarget);
             friendTargetList.add(friendTarget);
             userTarget.setFriends(friendTargetList);
-            userService.update(userTarget);
+            userService.update(userTarget);*/
 
-            throw new OKException("Kết bạn thành công");
+            // add friend target to list
+            Friend friendSource = new Friend();
+            friendSource.setUser(userTarget);
+            Friend friendSourceSave = friendRepository.save(friendSource);
+            friendRepository.insertUserFriend(userSource.getId(),friendSourceSave.getId());
+
+            // add friend source to list
+            Friend friendTarget = new Friend();
+            friendTarget.setUser(userSource);
+            Friend friendTargetSave = friendRepository.save(friendTarget);
+            friendRepository.insertUserFriend(userTarget.getId(),friendTargetSave.getId());
+
+//            throw new OKException("Kết bạn thành công");
         }
     }
 
@@ -140,12 +150,24 @@ public class FriendServiceImpl implements FriendService {
         User user = userService.findOneById(userId);
         if(user == null)
             throw new ObjectNotFoundException("Người dùng không tồn tại");
-        Page<Friend> friends = friendRepository.findByUserOrderByIdDesc(user,pageable);
+        /*Page<Friend> friends = friendRepository.findByUserOrderByIdDesc(user,pageable);
         List<FriendResponse> friendResponseList = new ArrayList<>();
         friends.stream().forEach(
                 friend -> {
                     FriendResponse friendResponse = friendResponseMapper.from(friend);
                     friendResponse.setUserInfoResponse(userInfoResponseMapper.from(friend.getUser()));
+                    friendResponseList.add(friendResponse);
+                }
+        );
+        return new PageImpl<>(friendResponseList, pageable, friendResponseList.size());*/
+        Page<UserFriends> friends = friendRepository.findByUserOrderByIdDesc(user.getId(),pageable);
+        List<FriendResponse> friendResponseList = new ArrayList<>();
+        friends.stream().forEach(
+                friend -> {
+                    FriendResponse friendResponse = new FriendResponse();
+                    friendResponse.setId(friend.getId());
+                    friendResponse.setCreatedDate(friend.getCreatedDate());
+                    friendResponse.setUserInfoResponse(userInfoResponseMapper.from(userService.findOneById(friend.getUserId())));
                     friendResponseList.add(friendResponse);
                 }
         );

@@ -23,12 +23,12 @@ public class PostController {
     public PostResponse savePost(@Valid @RequestBody PostSaveRequest postSaveRequest){
         return postService.save(postSaveRequest);
     }
-    @PutMapping("/{id}") // update post
+    @PostMapping("/update/{id}") // update post
     public PostResponse updatePost(@PathVariable("id") Long idPost,@RequestBody @Valid PostSaveRequest postSaveRequest){
         return postService.update(idPost,postSaveRequest);
     }
 
-    @DeleteMapping("/{id}") // delete post
+    @PostMapping("/delete/{id}") // delete post
     public void deletePost(@PathVariable("id") Long idPost){
         postService.delete(idPost);
     }

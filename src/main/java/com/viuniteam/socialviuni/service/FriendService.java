@@ -9,7 +9,6 @@ import org.springframework.http.ResponseEntity;
 import java.util.List;
 
 public interface FriendService {
-    void save(Friend friend);
 
     void addFriend(Long idSource, Long idTarget);
 

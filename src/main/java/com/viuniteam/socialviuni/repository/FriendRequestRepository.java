@@ -31,7 +31,9 @@ public interface FriendRequestRepository extends JpaRepository<FriendRequest,Lon
 //    void deleteUserFriendRequests(Long id);
 
 
-    @Query(value = "select * from friend_request fr join user_friend_requests ufr on fr.id = ufr.friend_requests_id and ufr.user_id=?1 order by fr.id desc",nativeQuery = true)
+    @Query(value = "select * from friend_request fr join user_friend_requests ufr on fr.id = ufr.friend_requests_id and ufr.user_id=?1 order by fr.id desc",
+            countQuery = "select count(*) from friend_request fr join user_friend_requests ufr on fr.id = ufr.friend_requests_id and ufr.user_id=?1",
+            nativeQuery = true)
     Page<FriendRequest> findByUser(Long id, Pageable pageable);
 }
 

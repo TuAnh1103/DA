@@ -24,7 +24,7 @@ public class FollowController {
          followService.addFollow(id);
     }
 
-    @DeleteMapping("/remove/{id}")
+    @PostMapping("/remove/{id}")
     public void removeFollow(@PathVariable("id") Long id){
         followService.removeFollow(id);
     }

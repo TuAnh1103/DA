@@ -20,8 +20,8 @@ public class FriendController {
     private final Profile profile;
 
 //    @PostMapping("/add/{id}")
-//    public ResponseEntity<?> addFriend(@PathVariable("id") Long idTarget){
-//        return friendService.addFriend(getIdUserName.getId(),idTarget);
+//    public void addFriend(@PathVariable("id") Long idTarget){
+//        friendService.addFriend(profile.getId(),idTarget);
 //    }
 
     @PostMapping("/remove/{id}")

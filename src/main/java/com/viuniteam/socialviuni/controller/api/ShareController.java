@@ -24,12 +24,12 @@ public class ShareController {
     public ShareResponse sharePost(@Valid @RequestBody ShareSaveRequest shareSaveRequest, @PathVariable("postId") Long postId){
         return shareService.share(shareSaveRequest,postId);
     }
-    @DeleteMapping("/{shareId}")
+    @PostMapping("/delete/{shareId}")
     public void removeSharePost(@PathVariable("shareId") Long shareId){
         shareService.remove(shareId);
     }
 
-    @PutMapping("/{shareId}")
+    @PostMapping("/update/{shareId}")
     public ShareResponse updateSharePost(@Valid @RequestBody ShareSaveRequest shareSaveRequest, @PathVariable("shareId") Long shareId){
         return shareService.update(shareSaveRequest,shareId);
     }

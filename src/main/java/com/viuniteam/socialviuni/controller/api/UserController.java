@@ -32,7 +32,7 @@ public class UserController {
         return userService.findByUsername(username);
     }
 
-    @PutMapping("/update")
+    @PostMapping("/update")
     public void updateInfo(@Valid @RequestBody UserUpdateInfoRequest userUpdateInfoRequest){
         userService.updateInfo(userUpdateInfoRequest);
     }

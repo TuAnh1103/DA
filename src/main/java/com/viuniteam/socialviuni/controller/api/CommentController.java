@@ -25,12 +25,12 @@ public class CommentController {
         return commentService.save(commentSaveRequest,postId);
     }
 
-    @PutMapping
+    @PostMapping("/update")
     public CommentResponse updateComment(@RequestBody @Valid CommentUpdateRequest commentUpdateRequest){
         return commentService.update(commentUpdateRequest);
     }
 
-    @DeleteMapping("/{commentId}")
+    @PostMapping("/delete/{commentId}")
     public void deleteComment(@PathVariable("commentId") Long commentId){
         commentService.delete(commentId);
     }

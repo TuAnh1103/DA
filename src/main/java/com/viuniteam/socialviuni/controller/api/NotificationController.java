@@ -26,7 +26,7 @@ public class NotificationController {
         return notificationService.getAll(userService.findOneById(profile.getId()), pageRequest);
     }
 
-    @DeleteMapping("/{id}")
+    @PostMapping("/delete/{id}")
     public void delete(@PathVariable("id") Long id){
         notificationService.delete(id);
     }

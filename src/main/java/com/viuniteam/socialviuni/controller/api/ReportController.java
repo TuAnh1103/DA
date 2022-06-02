@@ -34,7 +34,7 @@ public class ReportController {
         reportService.reportShare(reportSaveRequest);
     }
 
-    @DeleteMapping("/{reportId}")
+    @PostMapping("/delete/{reportId}")
     public void reportShare(@PathVariable("reportId") Long reportId){
         reportService.removeReport(reportId);
     }
