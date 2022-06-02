@@ -26,6 +26,6 @@ public class NotificationFollow {
     private Share share;
 
 
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
     private Notification notification;
 }

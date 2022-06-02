@@ -25,6 +25,6 @@ public class NotificationPost {
     @JoinColumn(name = "post_id")
     private Post post;
 
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
     private Notification notification;
 }

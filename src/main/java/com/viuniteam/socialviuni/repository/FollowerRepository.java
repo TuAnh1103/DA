@@ -18,7 +18,7 @@ public interface FollowerRepository extends JpaRepository<Follower,Long> {
 
     Follower findOneById(Long id);
 
-//    Page<Follower> findByUserOrderByIdDesc(User user, Pageable pageable);
+    Page<Follower> findByUserOrderByIdDesc(User user, Pageable pageable);
 
     @Query(value = "select flw.id, flw.user_id as userId, flw.created_date as createdDate from follower flw join user_followers u_flw on flw.id=u_flw.followers_id join user u on u.id = u_flw.user_id and u_flw.user_id=?1 order by flw.id desc",
             countQuery = "select count(*) from follower flw join user_followers u_flw on flw.id=u_flw.followers_id join user u on u.id = u_flw.user_id and u_flw.user_id=?1",

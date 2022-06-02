@@ -1,14 +1,14 @@
 package com.viuniteam.socialviuni.service;
 
 import com.viuniteam.socialviuni.dto.response.friend.FriendResponse;
-import com.viuniteam.socialviuni.entity.Friend;
+import com.viuniteam.socialviuni.dto.response.user.UserInfoResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.ResponseEntity;
 
 import java.util.List;
 
 public interface FriendService {
+    List<UserInfoResponse> listFriendSuggestions(Long userId);
 
     void addFriend(Long idSource, Long idTarget);
 

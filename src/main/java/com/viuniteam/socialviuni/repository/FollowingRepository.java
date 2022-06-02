@@ -1,6 +1,7 @@
 package com.viuniteam.socialviuni.repository;
 
 import com.viuniteam.socialviuni.entity.Following;
+import com.viuniteam.socialviuni.entity.User;
 import com.viuniteam.socialviuni.entity.mapper.UserFollowings;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -15,7 +16,7 @@ public interface FollowingRepository extends JpaRepository<Following,Long> {
     @Override
     void deleteById(Long id);
 
-//    Page<Following> findByUserOrderByIdDesc(User user, Pageable pageable);
+    Page<Following> findByUserOrderByIdDesc(User user, Pageable pageable);
 
     @Query(value = "select flw.id, flw.user_id as userId, flw.created_date as createdDate from following flw join user_followings u_flw on flw.id=u_flw.followings_id join user u on u.id = u_flw.user_id and u_flw.user_id=?1 order by flw.id desc",
             countQuery = "select count(*) from following flw join user_followings u_flw on flw.id=u_flw.followings_id join user u on u.id = u_flw.user_id and u_flw.user_id=?1",

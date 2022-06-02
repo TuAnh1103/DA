@@ -13,6 +13,7 @@ import com.viuniteam.socialviuni.exception.ObjectNotFoundException;
 import com.viuniteam.socialviuni.mapper.request.post.PostRequestMapper;
 import com.viuniteam.socialviuni.repository.PostRepository;
 import com.viuniteam.socialviuni.repository.notification.NotificationFollowRepository;
+import com.viuniteam.socialviuni.repository.notification.NotificationRepository;
 import com.viuniteam.socialviuni.repository.specification.PostSpecification;
 import com.viuniteam.socialviuni.service.*;
 import com.viuniteam.socialviuni.utils.ListUtils;
@@ -32,6 +33,7 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 public class PostServiceImpl implements PostService {
     private final PostRepository postRepository;
+    private final NotificationRepository notificationRepository;
     private final PostRequestMapper postRequestMapper;
     private final Profile profile;
     private final UserService userService;
@@ -93,6 +95,12 @@ public class PostServiceImpl implements PostService {
         if(postRepository.findOneById(id) == null)
             throw new ObjectNotFoundException("Bài viết không tồn tại");
         if(this.myPost(id) || userService.isAdmin(profile)){
+
+            notificationRepository.deleteNotificationByNotificationPostAndPostId(id);
+            notificationRepository.deleteNotificationByNotificationFollowAndPostId(id);
+            notificationRepository.deleteNotificationPostByPostId(id);
+            notificationRepository.deleteNotificationFollowByPostId(id);
+
             postRepository.deleteById(id);
             throw new OKException("Xóa bài viết thành công");
         }
@@ -126,7 +134,7 @@ public class PostServiceImpl implements PostService {
             return posts.map(postResponseUtils::convert);
         else{
             List<PostResponse> postResponseList = posts.stream()
-                    .filter(post -> checkPrivacy(post,profile) || myPost(profile.getId()))
+                    .filter(post -> checkPrivacy(post,profile))
                     .map(postResponseUtils::convert)
                     .collect(Collectors.toList());
             return new PageImpl<>(postResponseList,pageRequest,postResponseList.size());

@@ -11,6 +11,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 
 import javax.transaction.Transactional;
+import java.util.List;
 
 @Transactional
 public interface FriendRepository extends JpaRepository<Friend,Long> {
@@ -42,4 +43,9 @@ public interface FriendRepository extends JpaRepository<Friend,Long> {
             countQuery = "select count(*) from friend fr join user_friends u_fr on fr.id=u_fr.friends_id join user u on u.id = u_fr.user_id and u_fr.user_id=?1",
             nativeQuery = true)
     Page<UserFriends> findByUserOrderByIdDesc(Long userId, Pageable pageable);
+
+    @Query(value = "select fr.id, fr.user_id as userId, fr.created_date as createdDate from friend fr join user_friends u_fr on fr.id=u_fr.friends_id join user u on u.id = u_fr.user_id and u_fr.user_id=?1 order by fr.id desc",
+            countQuery = "select count(*) from friend fr join user_friends u_fr on fr.id=u_fr.friends_id join user u on u.id = u_fr.user_id and u_fr.user_id=?1",
+            nativeQuery = true)
+    List<UserFriends> findByUserOrderByIdDesc(Long userId);
 }

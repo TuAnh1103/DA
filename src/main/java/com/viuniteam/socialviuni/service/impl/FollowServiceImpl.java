@@ -2,6 +2,7 @@ package com.viuniteam.socialviuni.service.impl;
 
 import com.viuniteam.socialviuni.dto.Profile;
 import com.viuniteam.socialviuni.dto.response.follow.FollowResponse;
+import com.viuniteam.socialviuni.dto.utils.user.UserInfoResponseUtils;
 import com.viuniteam.socialviuni.entity.Follower;
 import com.viuniteam.socialviuni.entity.Following;
 import com.viuniteam.socialviuni.entity.User;
@@ -38,6 +39,7 @@ public class FollowServiceImpl implements FollowService {
     private final UserInfoResponseMapper userInfoResponseMapper;
     private final FollowerResponseMapper followerResponseMapper;
     private final FollowingResponseMapper followingResponseMapper;
+    private final UserInfoResponseUtils userInfoResponseUtils;
     @Override
     public void addFollow(Long idTarget) {
         /*Long idSource = profile.getId();
@@ -68,7 +70,6 @@ public class FollowServiceImpl implements FollowService {
         userService.update(userTarget);
 
         throw new OKException("Follow thành công");*/
-
 
 
         Long idSource = profile.getId();
@@ -107,7 +108,7 @@ public class FollowServiceImpl implements FollowService {
         List<Follower> followerTargetList = userTarget.getFollowers();
 
 
-        /*for(Following following : followingSourceList){
+        for(Following following : followingSourceList){
             if(userTarget.getId()== following.getUser().getId()){
                 followingSourceList.remove(following);
                 userSource.setFollowings(followingSourceList);
@@ -124,9 +125,9 @@ public class FollowServiceImpl implements FollowService {
                 followerRepository.deleteById(follower.getId());
                 break;
             }
-        }*/
+        }
 
-        for(Following following : followingSourceList){
+        /*for(Following following : followingSourceList){
             if(userTarget.getId()== following.getUser().getId()){
                 followingRepository.deleteUserFollowingByUserIdAndFollowingId(idSource,following.getId());
                 followingRepository.deleteFollowingById(following.getId());
@@ -139,7 +140,7 @@ public class FollowServiceImpl implements FollowService {
                 followerRepository.deleteFollowerById(follower.getId());
                 break;
             }
-        }
+        }*/
 
         throw new OKException("Hủy follow thành công");
     }
@@ -197,7 +198,7 @@ public class FollowServiceImpl implements FollowService {
                     FollowResponse followResponse = new FollowResponse();
                     followResponse.setId(follower.getId());
                     followResponse.setCreatedDate(follower.getCreatedDate());
-                    followResponse.setUserInfoResponse(userInfoResponseMapper.from(userService.findOneById(follower.getUserId())));
+                    followResponse.setUserInfoResponse(userInfoResponseUtils.convert(userService.findOneById(follower.getUserId())));
                     followResponseList.add(followResponse);
                 }
         );
@@ -228,7 +229,7 @@ public class FollowServiceImpl implements FollowService {
                     FollowResponse followResponse = new FollowResponse();
                     followResponse.setId(following.getId());
                     followResponse.setCreatedDate(following.getCreatedDate());
-                    followResponse.setUserInfoResponse(userInfoResponseMapper.from(userService.findOneById(following.getUserId())));
+                    followResponse.setUserInfoResponse(userInfoResponseUtils.convert(userService.findOneById(following.getUserId())));
                     followResponseList.add(followResponse);
                 }
         );

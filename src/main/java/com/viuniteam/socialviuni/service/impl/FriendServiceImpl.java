@@ -1,6 +1,8 @@
 package com.viuniteam.socialviuni.service.impl;
 
 import com.viuniteam.socialviuni.dto.response.friend.FriendResponse;
+import com.viuniteam.socialviuni.dto.response.user.UserInfoResponse;
+import com.viuniteam.socialviuni.dto.utils.user.UserInfoResponseUtils;
 import com.viuniteam.socialviuni.entity.Friend;
 import com.viuniteam.socialviuni.entity.User;
 import com.viuniteam.socialviuni.entity.mapper.UserFriends;
@@ -10,6 +12,7 @@ import com.viuniteam.socialviuni.exception.ObjectNotFoundException;
 import com.viuniteam.socialviuni.mapper.response.friend.FriendResponseMapper;
 import com.viuniteam.socialviuni.mapper.response.user.UserInfoResponseMapper;
 import com.viuniteam.socialviuni.repository.FriendRepository;
+import com.viuniteam.socialviuni.repository.UserRepository;
 import com.viuniteam.socialviuni.service.FriendService;
 import com.viuniteam.socialviuni.service.UserService;
 import lombok.AllArgsConstructor;
@@ -20,6 +23,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
@@ -30,7 +34,26 @@ public class FriendServiceImpl implements FriendService {
     private final UserService userService;
     private final FriendResponseMapper friendResponseMapper;
     private final UserInfoResponseMapper userInfoResponseMapper;
+    private final UserInfoResponseUtils userInfoResponseUtils;
+    private final UserRepository userRepository;
 
+    @Override
+    public List<UserInfoResponse> listFriendSuggestions(Long userId) {
+        User user = userService.findOneById(userId);
+        List<UserFriends> friendList = friendRepository.findByUserOrderByIdDesc(user.getId());
+        System.out.println(friendList.size());
+        List<Long> userIdList = new ArrayList<>();
+        userIdList.add(user.getId());
+        friendList.stream().forEach(friend -> userIdList.add(friend.getUserId()));
+
+//        String notInUserId = userIdList.toString();
+//        notInUserId = notInUserId.substring(1,notInUserId.length()-1);
+//        Page<User> users = userRepository.getListFriendSuggestion(notInUserId,pageable);
+//        List<User> users = userRepository.getListFriendSuggestion(notInUserId);
+        List<User> users = userRepository.findAll();
+        List<User> usersSuggestion = users.stream().filter(user1 -> !userIdList.contains(user1.getId())).collect(Collectors.toList());
+        return userInfoResponseUtils.convert(usersSuggestion);
+    }
 
     @Override
     public void addFriend(Long idSource, Long idTarget) {
@@ -44,7 +67,7 @@ public class FriendServiceImpl implements FriendService {
             User userSource = userService.findOneById(idSource);
             User userTarget = userService.findOneById(idTarget);
 
-            /*
+
             List<Friend> friendSourceList = userSource.getFriends();
             List<Friend> friendTargetList = userTarget.getFriends();
             // add friend target to list
@@ -61,8 +84,9 @@ public class FriendServiceImpl implements FriendService {
             friendRepository.save(friendTarget);
             friendTargetList.add(friendTarget);
             userTarget.setFriends(friendTargetList);
-            userService.update(userTarget);*/
+            userService.update(userTarget);
 
+            /*
             // add friend target to list
             Friend friendSource = new Friend();
             friendSource.setUser(userTarget);
@@ -74,7 +98,7 @@ public class FriendServiceImpl implements FriendService {
             friendTarget.setUser(userSource);
             Friend friendTargetSave = friendRepository.save(friendTarget);
             friendRepository.insertUserFriend(userTarget.getId(),friendTargetSave.getId());
-
+            */
 //            throw new OKException("Kết bạn thành công");
         }
     }
@@ -90,7 +114,7 @@ public class FriendServiceImpl implements FriendService {
 
             List<Friend> friendSourceList = userSource.getFriends();
             List<Friend> friendTargetList = userTarget.getFriends();
-            /*for(Friend friend : friendSourceList){
+            for(Friend friend : friendSourceList){
                 if(friend.getUser().getId() == userTarget.getId()){
                     friendSourceList.remove(friend);
                     userSource.setFriends(friendSourceList);
@@ -107,9 +131,9 @@ public class FriendServiceImpl implements FriendService {
                     friendRepository.deleteFriendById(friend.getId());
                     break;
                 }
-            }*/
+            }
 
-            for(Friend friend : friendSourceList){
+            /*for(Friend friend : friendSourceList){
                 if(friend.getUser().getId() == userTarget.getId()){
                     friendRepository.deleteUserFriendByUserIdAndFriendId(idSource,friend.getId());
                     friendRepository.deleteFriendById(friend.getId());
@@ -122,7 +146,7 @@ public class FriendServiceImpl implements FriendService {
                     friendRepository.deleteFriendById(friend.getId());
                     break;
                 }
-            }
+            }*/
 
             throw new OKException("Hủy kết bạn thành công");
         }
@@ -138,8 +162,10 @@ public class FriendServiceImpl implements FriendService {
         List<Friend> friendList = user.getFriends();
         List<FriendResponse> friendResponseList = new ArrayList<>();
         friendList.forEach(friend -> {
+            System.out.println(friend.getUser().getId());
             FriendResponse friendResponse = friendResponseMapper.from(friend);
-            friendResponse.setUserInfoResponse(userInfoResponseMapper.from(friend.getUser()));
+//            friendResponse.setUserInfoResponse(userInfoResponseMapper.from(friend.getUser()));
+            friendResponse.setUserInfoResponse(userInfoResponseUtils.convert(friend.getUser()));
             friendResponseList.add(friendResponse);
         });
         return friendResponseList;
@@ -155,11 +181,13 @@ public class FriendServiceImpl implements FriendService {
         friends.stream().forEach(
                 friend -> {
                     FriendResponse friendResponse = friendResponseMapper.from(friend);
-                    friendResponse.setUserInfoResponse(userInfoResponseMapper.from(friend.getUser()));
+//                    friendResponse.setUserInfoResponse(userInfoResponseMapper.from(friend.getUser()));
+                    friendResponse.setUserInfoResponse(userInfoResponseUtils.convert(friend.getUser()));
                     friendResponseList.add(friendResponse);
                 }
         );
         return new PageImpl<>(friendResponseList, pageable, friendResponseList.size());*/
+
         Page<UserFriends> friends = friendRepository.findByUserOrderByIdDesc(user.getId(),pageable);
         List<FriendResponse> friendResponseList = new ArrayList<>();
         friends.stream().forEach(
@@ -167,7 +195,7 @@ public class FriendServiceImpl implements FriendService {
                     FriendResponse friendResponse = new FriendResponse();
                     friendResponse.setId(friend.getId());
                     friendResponse.setCreatedDate(friend.getCreatedDate());
-                    friendResponse.setUserInfoResponse(userInfoResponseMapper.from(userService.findOneById(friend.getUserId())));
+                    friendResponse.setUserInfoResponse(userInfoResponseUtils.convert(userService.findOneById(friend.getUserId())));
                     friendResponseList.add(friendResponse);
                 }
         );
@@ -194,4 +222,5 @@ public class FriendServiceImpl implements FriendService {
     public boolean itIsMe(Long idSource, Long idTarget) {
         return idSource == idTarget;
     }
+
 }

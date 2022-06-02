@@ -2,12 +2,12 @@ package com.viuniteam.socialviuni.controller.api;
 
 import com.viuniteam.socialviuni.dto.Profile;
 import com.viuniteam.socialviuni.dto.response.friend.FriendResponse;
+import com.viuniteam.socialviuni.dto.response.user.UserInfoResponse;
 import com.viuniteam.socialviuni.service.FriendService;
 import com.viuniteam.socialviuni.utils.PageInfo;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -49,4 +49,8 @@ public class FriendController {
         return friendService.getAllByUserId(profile.getId(),pageRequest);
     }
 
+    @PostMapping("/friend-suggestion")
+    public List<UserInfoResponse> getListFriendSuggestion(){
+        return friendService.listFriendSuggestions(profile.getId());
+    }
 }

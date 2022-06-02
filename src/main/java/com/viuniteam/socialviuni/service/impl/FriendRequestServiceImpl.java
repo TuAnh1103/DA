@@ -55,7 +55,7 @@ public class FriendRequestServiceImpl implements FriendRequestService {
                     List<FriendRequest> friendRequestSourceList = userSource.getFriendRequests();
 
                     // xoa yeu cau ket ban khi ca 2 deu add nhau
-                    /*for(FriendRequest friendRequest : friendRequestSourceList){
+                    for(FriendRequest friendRequest : friendRequestSourceList){
                         if(friendRequest.getUser().getId() == userTarget.getId()){
                             try {
                                 friendRequestSourceList.remove(friendRequest);
@@ -68,9 +68,9 @@ public class FriendRequestServiceImpl implements FriendRequestService {
                                 break;
                             }
                         }
-                    }*/
+                    }
 
-                    for(FriendRequest friendRequest : friendRequestSourceList) {
+                    /*for(FriendRequest friendRequest : friendRequestSourceList) {
                         if (friendRequest.getUser().getId() == userTarget.getId()) {
                             try {
                                 friendRequestRepository.deleteUserFriendRequestByUserIdAndFriendRequestId(userSource.getId(), friendRequest.getId());
@@ -80,7 +80,7 @@ public class FriendRequestServiceImpl implements FriendRequestService {
                                 break;
                             }
                         }
-                    }
+                    }*/
 
                     friendService.addFriend(idSource,idTarget);
                     throw new OKException("Chấp nhận lời mời kết bạn thành công");
@@ -113,7 +113,7 @@ public class FriendRequestServiceImpl implements FriendRequestService {
                 List<FriendRequest> friendRequestSourceList = userSource.getFriendRequests();
                 List<FriendRequest> friendRequestTargetList = userTarget.getFriendRequests();
 
-                /*for(FriendRequest friendRequest : friendRequestSourceList){
+                for(FriendRequest friendRequest : friendRequestSourceList){
                     if(friendRequest.getUser().getId() == userTarget.getId()) {
                         friendRequestSourceList.remove(friendRequest);
                         userSource.setFriendRequests(friendRequestSourceList);
@@ -130,9 +130,9 @@ public class FriendRequestServiceImpl implements FriendRequestService {
                         friendRequestRepository.deleteFriendRequestById(friendRequest.getId());
                         break;
                     }
-                }*/
+                }
 
-                for(FriendRequest friendRequest : friendRequestSourceList){
+                /*for(FriendRequest friendRequest : friendRequestSourceList){
                     if(friendRequest.getUser().getId() == userTarget.getId()) {
                         friendRequestRepository.deleteUserFriendRequestByUserIdAndFriendRequestId(idSource,friendRequest.getId());
                         friendRequestRepository.deleteFriendRequestById(friendRequest.getId());
@@ -145,7 +145,7 @@ public class FriendRequestServiceImpl implements FriendRequestService {
                         friendRequestRepository.deleteFriendRequestById(friendRequest.getId());
                         break;
                     }
-                }
+                }*/
                 throw new OKException("Đã hủy lời mời kết bạn thành công");
             }
             else

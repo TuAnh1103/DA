@@ -36,9 +36,9 @@ public class Notification{
     @Column
     private NotificationSeenType status;
 
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
     private NotificationPost notificationPost;
 
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
     private NotificationFollow notificationFollow;
 }

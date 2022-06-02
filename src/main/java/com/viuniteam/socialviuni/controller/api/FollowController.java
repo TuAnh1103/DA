@@ -75,6 +75,4 @@ public class FollowController {
         return followService.getAllFollowingByUserId(profile.getId(),pageRequest);
     }
 
-
-
 }

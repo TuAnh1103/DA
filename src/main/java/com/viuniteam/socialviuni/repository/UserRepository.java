@@ -6,6 +6,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 
 import javax.transaction.Transactional;
 import java.util.List;
@@ -35,4 +36,10 @@ public interface UserRepository extends JpaRepository<User,Long> {
 
     Page<User> findAll(Specification specification, Pageable pageable);
 
+
+    @Query(value = "select * from user where id not in (?1)",nativeQuery = true)
+    Page<User> getListFriendSuggestion(String listUserId,Pageable pageable);
+
+    @Query(value = "select * from user where id not in (?1) limit 1",nativeQuery = true)
+    List<User> getListFriendSuggestion(String listUserId);
 }
