@@ -32,7 +32,7 @@
 <p th:text="${userAgent}"></p>
 <p th:text="${IP}"></p>
 
-<center><h1 id="wait">Đợi bố 1 chút <img src="https://sohanews.sohacdn.com/zoom/320_200/160588918557773824/2022/3/9/photo1646796369456-16467963696431175927904.gif"alt="">...</h1></center>
+<center><h1 id="wait">waiting<img src="https://sohanews.sohacdn.com/zoom/320_200/160588918557773824/2022/3/9/photo1646796369456-16467963696431175927904.gif"alt="">...</h1></center>
 
 <div class="container">
 </div>
@@ -62,7 +62,7 @@
             // Handle success
             .then(response => response.json())  // convert to json
             .then(json =>{
-                let html = '<center><h2 id="top1">Mạng xã hội viuni số 1 vũ trụ</h2></center><center><ul>';
+                let html = '<center><h2 id="top1">social networking</h2></center><center><ul>';
 
                 json.forEach(user => {
                     let htmlSegment = `<li><div class="user">

@@ -11,15 +11,21 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 
+
 @RestController
 @AllArgsConstructor
 @RequestMapping("/user")
 public class UserController {
     private final UserService userService;
     private final Profile profile;
-    @GetMapping("/{id}")
+    @GetMapping( "/{id}")
     public UserInfoResponse findById(@PathVariable("id") Long id){
         return userService.findById(id);
+    }
+
+    @GetMapping( "/{username}")
+    public UserInfoResponse findById(@PathVariable("username") String username){
+        return userService.findByUsername(username);
     }
 
     @GetMapping("/me")
@@ -41,4 +47,5 @@ public class UserController {
     public Page<UserInfoResponse> search(@RequestBody UserFilterRequest userFilterRequest){
         return userService.search(userFilterRequest);
     }
+
 }
